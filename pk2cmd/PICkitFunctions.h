@@ -192,7 +192,14 @@ class CPICkitFunctions
 			 FWCMD_RESET                      = 0xAE,
 			 FWCMD_SCRIPT_BUFFER_CHKSM        = 0xAF,
 			 FWCMD_WR_INTERNAL_EE             = 0xB1,
-			 FWCMD_RD_INTERNAL_EE             = 0xB2
+			 FWCMD_RD_INTERNAL_EE             = 0xB2,
+			 FWCMD_ENTER_UART_MODE            = 0xB3,
+			 FWCMD_EXIT_UART_MODE             = 0xB4,
+			 FWCMD_ENTER_LEARN_MODE           = 0xB5,
+             FWCMD_EXIT_LEARN_MODE            = 0xB6,
+             FWCMD_ENABLE_PK2GO_MODE          = 0xB7,
+             FWCMD_LOGIC_ANALYZER_GO          = 0xB8,
+             FWCMD_COPY_RAM_UPLOAD            = 0xB9
 			 };
 
 		  enum ScriptCommands
