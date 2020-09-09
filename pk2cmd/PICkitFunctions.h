@@ -89,6 +89,8 @@ class CPICkitFunctions
 		  bool GetSelfPowered(void);
 		  bool ReadPICkitVoltages(float* vdd, float* vpp);
 		  void USBClose(void);
+		  bool EnterUartMode(void);
+		  bool ExitUartMode(void);
 		  bool EnterBootloader(void);
 		  bool VerifyBootloaderMode(void);
 		  bool BL_EraseFlash(void);

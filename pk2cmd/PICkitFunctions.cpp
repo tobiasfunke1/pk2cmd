@@ -2997,12 +2997,31 @@ void CPICkitFunctions::string2Upper(_TCHAR* lcstring, int maxLength)
 	}
 }
 
+// TODO: both data buffers should be cleared before putting the unit to uart mode
+bool CPICkitFunctions::EnterUartMode(void)
+{
+    unsigned char commandArray[BUF_SIZE];
+    commandArray[0] = FWCMD_ENTER_UART_MODE;
+
+    // BaudValue = 65536 – [((1/BAUD) – 3e-6) / 1.67e-7] | 2400-> ~63059 = 0xF653
+    commandArray[1] = 0x53;
+    commandArray[2] = 0xF6;
+    return writeUSB(commandArray, 3); // response: 0
+}
+
+bool CPICkitFunctions::ExitUartMode(void)
+{
+    unsigned char commandArray[BUF_SIZE];
+    commandArray[0] = FWCMD_EXIT_UART_MODE;
+    return writeUSB(commandArray, 1); // response: 0
+}
+
 bool CPICkitFunctions::EnterBootloader(void)
 {
     unsigned char commandArray[BUF_SIZE];
     commandArray[0] = FWCMD_ENTER_BOOTLOADER;
     return writeUSB(commandArray, 1);
-} 
+}
 
 bool CPICkitFunctions::VerifyBootloaderMode(void)
 {
