@@ -14,7 +14,7 @@
 #
 
 APP=pk2cmd
-CC=g++
+CC=ccache g++
 # Uncomment this for debugging with gdb
 #DBG=-ggdb -O0
 # Uncomment this for no debugging (default)
