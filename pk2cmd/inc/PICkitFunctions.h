@@ -211,7 +211,7 @@ protected:
 
     void timerStop() const;
 
-    void readString(FILE *datfile, char stringArray[]);
+    static void readString(FILE *datfile, char stringArray[]);
 
     void downloadPartScripts(int familyIndex);
 
@@ -223,7 +223,7 @@ protected:
 
     bool readUSB();
 
-    void string2Upper(_TCHAR *lcstring, int maxLength);
+    static void string2Upper(_TCHAR *lcstring, int maxLength);
 
     void writeConfigInsideProgramMem();
 
@@ -232,7 +232,7 @@ protected:
     int ReadPEVersion();                            //PIC32
     bool PEBlankCheck(unsigned int startAddress, unsigned int lengthBytes); //PIC32
     int PEGetCRC(unsigned int startAddress, unsigned int lengthBytes); //PIC32
-    int addInstruction(unsigned char *commandarray, unsigned int instruction, int offset); //PIC32
+    static int addInstruction(unsigned char *commandarray, unsigned int instruction, int offset); //PIC32
     bool PE_DownloadAndConnect();                    //PIC32
     bool PIC32Read(bool progmem, bool uidmem, bool cfgmem); //PIC32
     bool PIC32BlankCheck();                        //PIC32
@@ -250,7 +250,7 @@ protected:
     bool PE33Write(int endOfBuffer); // dsP33PE
     bool PE33VerifyCRC(); // dsP33PE
     unsigned short CalcCRCProgMem(); // dsP33PE
-    void CRC33_Calculate(unsigned char ByteValue, unsigned int *CRC_Value); // dsP33PE
+    static void CRC33_Calculate(unsigned char ByteValue, unsigned int *CRC_Value); // dsP33PE
     bool DownloadPE24F(); // PIC24FPE
     bool PE24F_Connect(); // PIC24FPE
     bool PE24F_DownloadAndConnect(); // PIC24FPE

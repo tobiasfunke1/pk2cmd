@@ -5,9 +5,9 @@
 
 class CP24F_PE {
 public:
-    CP24F_PE(void);
+    CP24F_PE();
 
-    ~CP24F_PE(void);
+    ~CP24F_PE();
 
     static const unsigned int PIC24F_PE_Code[K_PE24F_LEN];
 

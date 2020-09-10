@@ -34,7 +34,7 @@ bool verbose = 0;        // don't generate user messages
 #endif
 
 int pickit2mode = 0;
-int pickit2firmware = 0;
+__unused __unused int pickit2firmware = 0;
 int targetPower = 0;
 
 int pickit_interface = 0;

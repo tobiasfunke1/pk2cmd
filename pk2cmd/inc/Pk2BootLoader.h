@@ -6,9 +6,9 @@
 
 class Pk2BootLoader {
 public:
-    Pk2BootLoader(void);
+    Pk2BootLoader();
 
-    ~Pk2BootLoader(void);
+    ~Pk2BootLoader();
 
     static bool ReadHexAndDownload(_TCHAR *fileName, CPICkitFunctions *picFuncs, int unitIndex);
 

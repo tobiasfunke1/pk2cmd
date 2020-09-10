@@ -128,9 +128,9 @@ extern byte cmd[reqLen + 1];
 //class CUsbhidioc : public CDialog
 class CUsbhidioc {
 public:
-    CUsbhidioc(void);
+    CUsbhidioc();
 
-    char *GetPK2UnitID(void);
+    char *GetPK2UnitID();
 
     bool FindTheHID(int unitIndex);
 
@@ -178,7 +178,7 @@ extern bool ReadReport(char InBuffer[]);
 
 extern bool WriteReport(char OutputBuffer[], unsigned int nBytes);
 
-extern void CloseReport(void);
+extern void CloseReport();
 
 // Send data over usb
 extern int sendUSB(pickit_dev *d, byte *src, int len);

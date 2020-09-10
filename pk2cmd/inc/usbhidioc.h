@@ -7,9 +7,9 @@
 // class CUsbhidioc : public CDialog
 class CUsbhidioc {
 public:
-    CUsbhidioc(void);
+    CUsbhidioc();
 
-    char *GetPK2UnitID(void);
+    char *GetPK2UnitID();
 
     bool FindTheHID(int unitIndex);
 

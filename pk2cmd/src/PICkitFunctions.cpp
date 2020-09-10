@@ -3060,8 +3060,8 @@ bool CPICkitFunctions::DownloadPE() {
         commandArrayp[commOffSet++] = FWCMD_DOWNLOAD_DATA;
         commandArrayp[commOffSet++] = 16;
         // STEP 5
-        commOffSet = addInstruction(commandArrayp, (0x3c060000 | P32PE.pe_Loader[i]), commOffSet);
-        commOffSet = addInstruction(commandArrayp, (0x34c60000 | P32PE.pe_Loader[i + 1]), commOffSet);
+        commOffSet = addInstruction(commandArrayp, (0x3c060000 | CPIC32PE::pe_Loader[i]), commOffSet);
+        commOffSet = addInstruction(commandArrayp, (0x34c60000 | CPIC32PE::pe_Loader[i + 1]), commOffSet);
         commOffSet = addInstruction(commandArrayp, 0xac860000, commOffSet);
         commOffSet = addInstruction(commandArrayp, 0x24840004, commOffSet);
         // execute
@@ -3129,16 +3129,16 @@ bool CPICkitFunctions::DownloadPE() {
         commandArrayp[commOffSet++] = 40;
         // download the PE instructions
         j = i * 10;
-        commOffSet = addInstruction(commandArrayp, P32PE.PIC32_PE[j], commOffSet);
-        commOffSet = addInstruction(commandArrayp, P32PE.PIC32_PE[j + 1], commOffSet);
-        commOffSet = addInstruction(commandArrayp, P32PE.PIC32_PE[j + 2], commOffSet);
-        commOffSet = addInstruction(commandArrayp, P32PE.PIC32_PE[j + 3], commOffSet);
-        commOffSet = addInstruction(commandArrayp, P32PE.PIC32_PE[j + 4], commOffSet);
-        commOffSet = addInstruction(commandArrayp, P32PE.PIC32_PE[j + 5], commOffSet);
-        commOffSet = addInstruction(commandArrayp, P32PE.PIC32_PE[j + 6], commOffSet);
-        commOffSet = addInstruction(commandArrayp, P32PE.PIC32_PE[j + 7], commOffSet);
-        commOffSet = addInstruction(commandArrayp, P32PE.PIC32_PE[j + 8], commOffSet);
-        commOffSet = addInstruction(commandArrayp, P32PE.PIC32_PE[j + 9], commOffSet);
+        commOffSet = addInstruction(commandArrayp, CPIC32PE::PIC32_PE[j], commOffSet);
+        commOffSet = addInstruction(commandArrayp, CPIC32PE::PIC32_PE[j + 1], commOffSet);
+        commOffSet = addInstruction(commandArrayp, CPIC32PE::PIC32_PE[j + 2], commOffSet);
+        commOffSet = addInstruction(commandArrayp, CPIC32PE::PIC32_PE[j + 3], commOffSet);
+        commOffSet = addInstruction(commandArrayp, CPIC32PE::PIC32_PE[j + 4], commOffSet);
+        commOffSet = addInstruction(commandArrayp, CPIC32PE::PIC32_PE[j + 5], commOffSet);
+        commOffSet = addInstruction(commandArrayp, CPIC32PE::PIC32_PE[j + 6], commOffSet);
+        commOffSet = addInstruction(commandArrayp, CPIC32PE::PIC32_PE[j + 7], commOffSet);
+        commOffSet = addInstruction(commandArrayp, CPIC32PE::PIC32_PE[j + 8], commOffSet);
+        commOffSet = addInstruction(commandArrayp, CPIC32PE::PIC32_PE[j + 9], commOffSet);
         // execute
         commandArrayp[commOffSet++] = FWCMD_EXECUTE_SCRIPT;
         commandArrayp[commOffSet++] = 10;
@@ -3170,7 +3170,7 @@ bool CPICkitFunctions::DownloadPE() {
         commandArrayp[commOffSet++] = (unsigned char) (4 * numLoops);
         // download the PE instructions
         for (i = 0; i < numLoops; i++) {
-            commOffSet = addInstruction(commandArrayp, P32PE.PIC32_PE[i + arrayOffset], commOffSet);
+            commOffSet = addInstruction(commandArrayp, CPIC32PE::PIC32_PE[i + arrayOffset], commOffSet);
         }
         // execute
         commandArrayp[commOffSet++] = FWCMD_EXECUTE_SCRIPT;
@@ -4053,12 +4053,12 @@ bool CPICkitFunctions::DownloadPE33() {
             commandArrayp[commOffSet++] = FWCMD_DOWNLOAD_DATA;
             commandArrayp[commOffSet++] = 48; // 16 instructions.
             for (word = 0; word < 16; word++) {
-                commandArrayp[commOffSet++] = (unsigned char) (P33PE.dsPIC33_PE_Code[instruction] & 0xFF);
-                commandArrayp[commOffSet++] = (unsigned char) ((P33PE.dsPIC33_PE_Code[instruction] >> 8) & 0xFF);
-                commandArrayp[commOffSet++] = (unsigned char) ((P33PE.dsPIC33_PE_Code[instruction] >> 16) & 0xFF);
+                commandArrayp[commOffSet++] = (unsigned char) (CdsP33_PE::dsPIC33_PE_Code[instruction] & 0xFF);
+                commandArrayp[commOffSet++] = (unsigned char) ((CdsP33_PE::dsPIC33_PE_Code[instruction] >> 8) & 0xFF);
+                commandArrayp[commOffSet++] = (unsigned char) ((CdsP33_PE::dsPIC33_PE_Code[instruction] >> 16) & 0xFF);
                 instruction++;
             }
-            workaround = P33PE.dsPIC33_PE_Code[instruction - 4];
+            workaround = CdsP33_PE::dsPIC33_PE_Code[instruction - 4];
             writeUSB(commandArrayp, commOffSet);
         }
         // Program the row
@@ -4177,7 +4177,7 @@ bool CPICkitFunctions::DownloadPE33() {
             memWord = (unsigned int) upload_buffer[uploadIndex++];
             memWord |= (unsigned int) upload_buffer[uploadIndex++] << 8;
             memWord |= (unsigned int) upload_buffer[uploadIndex++] << 16;
-            if (memWord != P33PE.dsPIC33_PE_Code[instruction++]) {
+            if (memWord != CdsP33_PE::dsPIC33_PE_Code[instruction++]) {
                 RunScript(SCR_PROG_EXIT, 1);
                 return false;
             }
@@ -4735,7 +4735,7 @@ void CPICkitFunctions::CRC33_Calculate(unsigned char ByteValue, unsigned int *CR
     unsigned char value;
 
     value = (unsigned char) ((*CRC_Value >> (8)) ^ ByteValue);
-    *CRC_Value = P33PE.CRC_LUT_Array[value] ^ (*CRC_Value << 8);
+    *CRC_Value = CdsP33_PE::CRC_LUT_Array[value] ^ (*CRC_Value << 8);
 }
 
 bool CPICkitFunctions::useProgExec33() {
@@ -4782,9 +4782,9 @@ bool CPICkitFunctions::DownloadPE24F() {
             commandArrayp[commOffSet++] = FWCMD_DOWNLOAD_DATA;
             commandArrayp[commOffSet++] = 48; // 16 instructions.
             for (word = 0; word < 16; word++) {
-                commandArrayp[commOffSet++] = (unsigned char) (P24FPE.PIC24F_PE_Code[instruction] & 0xFF);
-                commandArrayp[commOffSet++] = (unsigned char) ((P24FPE.PIC24F_PE_Code[instruction] >> 8) & 0xFF);
-                commandArrayp[commOffSet++] = (unsigned char) ((P24FPE.PIC24F_PE_Code[instruction] >> 16) & 0xFF);
+                commandArrayp[commOffSet++] = (unsigned char) (CP24F_PE::PIC24F_PE_Code[instruction] & 0xFF);
+                commandArrayp[commOffSet++] = (unsigned char) ((CP24F_PE::PIC24F_PE_Code[instruction] >> 8) & 0xFF);
+                commandArrayp[commOffSet++] = (unsigned char) ((CP24F_PE::PIC24F_PE_Code[instruction] >> 16) & 0xFF);
                 instruction++;
             }
             writeUSB(commandArrayp, commOffSet);
@@ -4869,7 +4869,7 @@ bool CPICkitFunctions::DownloadPE24F() {
             memWord = (unsigned int) upload_buffer[uploadIndex++];
             memWord |= (unsigned int) upload_buffer[uploadIndex++] << 8;
             memWord |= (unsigned int) upload_buffer[uploadIndex++] << 16;
-            if (memWord != P24FPE.PIC24F_PE_Code[instruction++]) {
+            if (memWord != CP24F_PE::PIC24F_PE_Code[instruction++]) {
                 RunScript(SCR_PROG_EXIT, 1);
                 return false;
             }

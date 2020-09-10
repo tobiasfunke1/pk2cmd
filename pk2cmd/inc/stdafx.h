@@ -9,14 +9,14 @@
 #define    VERSION_MINOR    21
 #define    VERSION_DOT      0
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <unistd.h>
-#include <ctype.h>
-#include <stdarg.h>
-#include <string.h>
-#include <errno.h>
-#include <time.h>
+#include <cctype>
+#include <cstdarg>
+#include <cstring>
+#include <cerrno>
+#include <ctime>
 
 #define    MAX_PATH    256
 

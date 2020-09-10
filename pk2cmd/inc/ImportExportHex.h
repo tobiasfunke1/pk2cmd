@@ -6,9 +6,9 @@
 
 class CImportExportHex {
 public:
-    CImportExportHex(void);
+    CImportExportHex();
 
-    ~CImportExportHex(void);
+    ~CImportExportHex();
 
     static bool ImportHexFile(_TCHAR *filePath, CPICkitFunctions *picFuncs);
 
@@ -16,7 +16,7 @@ public:
 
     static int ParseHex(const _TCHAR *characters, int length);
 
-    bool ExportHexFile(_TCHAR *filePath, CPICkitFunctions *picFuncs);
+    static bool ExportHexFile(_TCHAR *filePath, CPICkitFunctions *picFuncs);
 
     static bool ExportBINFile(_TCHAR *filePath, CPICkitFunctions *picFuncs);
 
