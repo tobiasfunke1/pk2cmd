@@ -24,16 +24,8 @@
 
 #include <cstdio>
 #include <unistd.h>
-#include <cctype>
-#include <cstring>
 
-#include "stdafx.h"
 #include "pk2usb.h"
-
-// Prototypes
-//   none
-
-// Data
 
 #ifdef VERBOSE
 bool	verbose = 1;		// generate user messages
@@ -47,7 +39,7 @@ int targetPower = 0;
 
 int pickit_interface = 0;
 int usbdebug = USB_DEBUG_FLAGS;
-FILE *usbFile = NULL;
+FILE *usbFile = nullptr;
 
 byte cmd[reqLen + 1];
 
@@ -155,7 +147,6 @@ char *scriptNames[SCRIPT_MAX + 1] = {
         (char *) "Unknown Script Command"
 };
 
-// Code
 
 // Find and return index in script interpreter table.
 // If invalid script code, return -1.
@@ -534,41 +525,35 @@ void disableTargetPower(pickit_dev *d) {
 }
 
 // Turn the device on
-
 void pickitOn(pickit_dev *d) {
     if (targetPower == SELFPOWER)    // ignore if target is self powered
         return;
-
     enableTargetPower(d);
     usleep(100000);
 }
 
 // Turn the device off
-
 void pickitOff(pickit_dev *d) {
     if (targetPower == SELFPOWER)    // ignore if target is self powered
         return;
-
     disableTargetPower(d);
 }
 
-CUsbhidioc::CUsbhidioc(void) {
+CUsbhidioc::CUsbhidioc() {
     m_UnitID[0] = 0;
 }
 
-char *CUsbhidioc::GetPK2UnitID(void) {
+char *CUsbhidioc::GetPK2UnitID() {
     return m_UnitID;
 }
 
 // Detect the PICkit2
-
 bool CUsbhidioc::FindTheHID(int unitIndex) {
     if (!deviceHandle)
         deviceHandle = usbPickitOpen(unitIndex, (char *) &m_UnitID);
 
     if (deviceHandle)
         return 1;
-
     return 0;
 }
 
@@ -576,40 +561,29 @@ bool CUsbhidioc::FindTheHID(int unitIndex) {
 // int recvUSB(pickit_dev *d, int len, byte *dest) // returns 1 if ok
 
 bool CUsbhidioc::ReadReport(char InBuffer[]) {
-    int i;
-
-    if (!deviceHandle) {
+    if (!deviceHandle)
         return 0;
-    }
 
-    i = recvUSB(deviceHandle, reqLen, (byte *) InBuffer);
-    return i;
+    return recvUSB(deviceHandle, reqLen, (byte *) InBuffer);
 }
 
 // Return 1 if write ok, else return 0
 // int sendUSB(pickit_dev *d, byte *src, int len) - returns 1 if ok
-
 bool CUsbhidioc::WriteReport(char OutputBuffer[], unsigned int nBytes) {
-    int i;
-
-    if (!deviceHandle) {
+    if (!deviceHandle)
         return 0;
-    }
 
-    for (i = nBytes; i < 65; ++i)
+    for (int i = nBytes; i < 65; ++i)
         OutputBuffer[i] = 'Z';  // Pad buffer with Null Commands
 
-    i = sendUSB(deviceHandle, (byte *) OutputBuffer, nBytes);
-    return i;
+    return sendUSB(deviceHandle, (byte *) OutputBuffer, nBytes);
 }
 
 // Close the channel
-
 void CUsbhidioc::CloseReport() {
     if (deviceHandle) {
-
         usb_release_interface(deviceHandle, pickit_interface);
-        deviceHandle = NULL;
+        deviceHandle = nullptr;
         pickit_interface = 0;
     }
 }

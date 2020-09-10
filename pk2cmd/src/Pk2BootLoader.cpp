@@ -18,15 +18,9 @@
 #include "stdafx.h"
 #include "Pk2BootLoader.h"
 
-#ifdef WIN32
-#include "Windows.h"
-#endif
+Pk2BootLoader::Pk2BootLoader() = default;
 
-Pk2BootLoader::Pk2BootLoader(void) {
-}
-
-Pk2BootLoader::~Pk2BootLoader(void) {
-}
+Pk2BootLoader::~Pk2BootLoader() = default;
 
 bool Pk2BootLoader::ReadHexAndDownload(_TCHAR *fileName, CPICkitFunctions *picFuncs, int unitIndex) {
     FILE *hexfile;
@@ -48,7 +42,7 @@ bool Pk2BootLoader::ReadHexAndDownload(_TCHAR *fileName, CPICkitFunctions *picFu
                 Sleep(500);
             }
             if (i == 10) {
-                if (hexfile != NULL)
+                if (hexfile != nullptr)
                     fclose(hexfile);
                 return false;
             }
@@ -59,9 +53,9 @@ bool Pk2BootLoader::ReadHexAndDownload(_TCHAR *fileName, CPICkitFunctions *picFu
         bool second16 = false;
 
         while (!feof(hexfile)) {
-            if (_fgetts(fileLine, MAX_BLLINE_LEN, hexfile) == NULL) {
+            if (_fgetts(fileLine, MAX_BLLINE_LEN, hexfile) == nullptr) {
                 printf("\n Error reading OS hex file.\n");
-                if (hexfile != NULL)
+                if (hexfile != nullptr)
                     fclose(hexfile);
                 return false;
             }
@@ -73,8 +67,8 @@ bool Pk2BootLoader::ReadHexAndDownload(_TCHAR *fileName, CPICkitFunctions *picFu
 
                 if ((second16) && ((fileAddress & 0x00000010) == 0)) {// if just moved to new 32-byte boundary.
                     picFuncs->BL_WriteFlash(flashWriteData);
-                    for (int x = 0; x < 35; x++) { // clear array for skipped bytes in hex file
-                        flashWriteData[x] = 0xFF;
+                    for (unsigned char & x : flashWriteData) { // clear array for skipped bytes in hex file
+                        x = 0xFF;
                     }
                 }
 
@@ -119,12 +113,12 @@ bool Pk2BootLoader::ReadHexAndDownload(_TCHAR *fileName, CPICkitFunctions *picFu
             }
         }
         picFuncs->BL_WriteFlash(flashWriteData); // write last row
-        if (hexfile != NULL) {
+        if (hexfile != nullptr) {
             fclose(hexfile);
         }
         return true;
     } else {
-        if (hexfile != NULL)
+        if (hexfile != nullptr)
             fclose(hexfile);
         return false;
     }
@@ -140,9 +134,9 @@ bool Pk2BootLoader::ReadHexAndVerify(_TCHAR *fileName, CPICkitFunctions *picFunc
     if (_tfopen_s(&hexfile, fileName, "rt") == 0) {
         printf("Verifying new OS...\n");
         while (!feof(hexfile)) {
-            if (_fgetts(fileLine, MAX_BLLINE_LEN, hexfile) == NULL) {
+            if (_fgetts(fileLine, MAX_BLLINE_LEN, hexfile) == nullptr) {
                 printf("\n Error reading OS hex file.\n");
-                if (hexfile != NULL)
+                if (hexfile != nullptr)
                     fclose(hexfile);
                 return false;
             }
@@ -184,7 +178,7 @@ bool Pk2BootLoader::ReadHexAndVerify(_TCHAR *fileName, CPICkitFunctions *picFunc
             }
 
         }
-        if (hexfile != NULL)
+        if (hexfile != nullptr)
             fclose(hexfile);
         return verified;
     } else {
@@ -193,7 +187,7 @@ bool Pk2BootLoader::ReadHexAndVerify(_TCHAR *fileName, CPICkitFunctions *picFunc
 
 }
 
-int Pk2BootLoader::ParseHex(_TCHAR *characters, int length) {
+int Pk2BootLoader::ParseHex(const _TCHAR *characters, int length) {
     int integer = 0;
 
     for (int i = 0; i < length; i++) {

@@ -21,13 +21,10 @@
 // stdafx.obj will contain the pre-compiled type information
 
 #include "stdafx.h"
-#include <stdarg.h>
+#include <cstdarg>
 
 // TODO: reference any additional headers you need in STDAFX.H
 // and not in this file
-
-
-#ifndef WIN32
 
 char *_tcsncpy_s(char *dst, const char *src, int len) {
     int i;
@@ -38,11 +35,6 @@ char *_tcsncpy_s(char *dst, const char *src, int len) {
     dst[len] = 0;
     return dst;
 }
-
-/* Called from cmd_app.cpp
-
-	_tsearchenv_s("PK2DeviceFile.dat", "PATH", tempString);
-*/
 
 void _tsearchenv_s(const char *fname, const char *path, char *bfr) {
     int offset = 0;//, found = 0;
@@ -82,19 +74,6 @@ void _localtime64_s(struct tm *x, time_t *y) {
     memcpy(x, ltime, sizeof(struct tm));
 }
 
-/* The only call to _tcsftime is in cmd_app.cpp:
-
-	time_t now;
-	struct tm today;
-	char stime[128] = "";
-
-	_tzset();
-	time(&now);
-   _localtime64_s(&today, &now);
-	_tcsftime( stime, 128, "%d-%b-%Y, %H:%M:%S", &today );
-	                        This format is some non-standard Micros$$t junk
-*/
-
 void _tcsftime(char *bfr, int len, const char *fmt, struct tm *time) {
     sprintf(bfr, "%d-%d-%d, %d:%02d:%02d", time->tm_mday, time->tm_mon + 1, time->tm_year + 1900,
             time->tm_hour, time->tm_min, time->tm_sec);
@@ -107,7 +86,6 @@ void _stprintf_s(char *bfr, int size, const char *fmt, ...) {
     va_end(argp);
 }
 
-//	if ((err = fopen_s(&datfile, path, "rb")) == 0)
 
 int fopen_s(FILE **fp, char *path, const char *spec) {
     FILE *fptr;
@@ -118,5 +96,3 @@ int fopen_s(FILE **fp, char *path, const char *spec) {
     *fp = fptr;
     return errno;
 }
-
-#endif

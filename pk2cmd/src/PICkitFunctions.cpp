@@ -20,11 +20,7 @@
 #include "PIC32PE.h"
 #include "dsP33_PE.h"
 #include "P24F_PE.h"
-#include "string.h"
-
-#ifdef WIN32
-#include "Windows.h"
-#endif
+#include <cstring>
 
 CPICkitFunctions::CPICkitFunctions() {
     vppFirstEnabled = false;
@@ -39,7 +35,7 @@ CPICkitFunctions::CPICkitFunctions() {
     deviceRevision = 0;
     usePercentTimer = false;
     useTimerNewlines = false;
-    timerOperation = NULL;
+    timerOperation = nullptr;
     timerIncrement = 0;
     timerValue = 0;
 }
@@ -178,7 +174,7 @@ unsigned int CPICkitFunctions::ReadDeviceID() {
     RunScript(SCR_RD_DEVID, 1);
     UploadData();
     RunScript(SCR_PROG_EXIT, 1);
-    unsigned int deviceID = (unsigned int) (Usb_read_array[2] * 256 + Usb_read_array[1]);
+    auto deviceID = (unsigned int) (Usb_read_array[2] * 256 + Usb_read_array[1]);
     for (int shift = 0; shift < DevFile.Families[ActiveFamily].ProgMemShift; shift++) {
         deviceID >>= 1;         // midrange/baseline part results must be shifted by 1
     }
@@ -202,7 +198,7 @@ unsigned int CPICkitFunctions::ReadDeviceID() {
     return deviceID;
 }
 
-unsigned int CPICkitFunctions::GetDeviceRevision() { // NOTE: ReadDeviceID() *MUST* be called first
+unsigned int CPICkitFunctions::GetDeviceRevision() const { // NOTE: ReadDeviceID() *MUST* be called first
     return deviceRevision;
 }
 
@@ -616,7 +612,7 @@ void CPICkitFunctions::WriteConfigOutsideProgMem() {
     RunScript(SCR_PROG_EXIT, 1);
 }
 
-int CPICkitFunctions::DataClrAndDownload(unsigned char dataArray[], int arrayLength, int startIndex)
+int CPICkitFunctions::DataClrAndDownload(const unsigned char dataArray[], int arrayLength, int startIndex)
 // returns index of next byte to be transmitted. 0 = failed
 {
     if (startIndex >= arrayLength) {
@@ -640,7 +636,7 @@ int CPICkitFunctions::DataClrAndDownload(unsigned char dataArray[], int arrayLen
     }
 }
 
-int CPICkitFunctions::DataDownload(unsigned char dataArray[], int arrayLength, int startIndex)
+int CPICkitFunctions::DataDownload(const unsigned char dataArray[], int arrayLength, int startIndex)
 // returns index of next byte to be transmitted. 0 = failed
 {
     if (startIndex >= arrayLength) {
@@ -663,7 +659,7 @@ int CPICkitFunctions::DataDownload(unsigned char dataArray[], int arrayLength, i
     }
 }
 
-int CPICkitFunctions::FindLastUsedInBuffer(unsigned int bufferToSearch[], unsigned int blankValue,
+int CPICkitFunctions::FindLastUsedInBuffer(const unsigned int bufferToSearch[], unsigned int blankValue,
                                            int startIndex) {   // go backwards from the start entry to find the last non-blank entry
     if (!FamilyIsKeeloq()) {
         for (int index = startIndex; index > 0; index--) {
@@ -1093,7 +1089,7 @@ void CPICkitFunctions::ReadBandGap() {
     RunScript(SCR_CONFIG_RD, 1);
     UploadData();
     RunScript(SCR_PROG_EXIT, 1);
-    unsigned int config = (unsigned int) Usb_read_array[1];
+    auto config = (unsigned int) Usb_read_array[1];
     config |= (unsigned int) Usb_read_array[2] << 8;
     if (DevFile.Families[ActiveFamily].ProgMemShift > 0) {
         config = (config >> 1) & DevFile.Families[ActiveFamily].BlankValue;
@@ -1111,7 +1107,7 @@ bool CPICkitFunctions::SetMCLR(bool nMCLR) {
     return SendScript(scriptArray, 1);
 }
 
-bool CPICkitFunctions::SendScript(unsigned char script[], int length) {
+bool CPICkitFunctions::SendScript(const unsigned char script[], int length) {
 
     unsigned char commandArray[BUF_SIZE];
     commandArray[0] = FWCMD_EXECUTE_SCRIPT;
@@ -1318,7 +1314,7 @@ bool CPICkitFunctions::ReadDevice(char function, bool progmem, bool eemem, bool 
                 int uploadIndex = 0;
                 for (int word = 0; word < wordsPerLoop; word++) {
                     int bite = 0;
-                    unsigned int memWord = (unsigned int) upload_buffer[uploadIndex + bite++];
+                    auto memWord = (unsigned int) upload_buffer[uploadIndex + bite++];
                     if (bite < bytesPerWord) {
                         memWord |= (unsigned int) upload_buffer[uploadIndex + bite++] << 8;
                     }
@@ -1402,7 +1398,7 @@ bool CPICkitFunctions::ReadDevice(char function, bool progmem, bool eemem, bool 
         RunScript(SCR_PROG_EXIT, 1);
         do {
             int bite = 0;
-            unsigned int memWord = (unsigned int) upload_buffer[bufferIndex + bite++];
+            auto memWord = (unsigned int) upload_buffer[bufferIndex + bite++];
             if (bite < bytesPerWord) {
                 memWord |= (unsigned int) upload_buffer[bufferIndex + bite++] << 8;
             }
@@ -1512,7 +1508,7 @@ bool CPICkitFunctions::readEEPROM(char function) {
         int uploadIndex = 0;
         for (int word = 0; word < wordsPerLoop; word++) {
             int bite = 0;
-            unsigned int memWord = (unsigned int) upload_buffer[uploadIndex + bite++];
+            auto memWord = (unsigned int) upload_buffer[uploadIndex + bite++];
             if (bite < bytesPerWord) {
                 memWord |= (unsigned int) upload_buffer[uploadIndex + bite++] << 8;
             }
@@ -1730,7 +1726,7 @@ bool CPICkitFunctions::ReadConfigOutsideProgMem(char function) {
     int configWords = DevFile.PartsList[ActivePart].ConfigWords;
     int bufferIndex = 1;                    // report starts on index 1, which is #bytes uploaded.
     for (int word = 0; word < configWords; word++) {
-        unsigned int config = (unsigned int) Usb_read_array[bufferIndex++];
+        auto config = (unsigned int) Usb_read_array[bufferIndex++];
         config |= (unsigned int) Usb_read_array[bufferIndex++] << 8;
         if (DevFile.Families[ActiveFamily].ProgMemShift > 0) {
             config = (config >> 1) & DevFile.Families[ActiveFamily].BlankValue;
@@ -1820,7 +1816,7 @@ void CPICkitFunctions::timerPrint() {
     fflush(stdout);
 }
 
-void CPICkitFunctions::timerStop() {
+void CPICkitFunctions::timerStop() const {
     if (usePercentTimer) {
         if (!useTimerNewlines) {
             printf("\r                              \r");
@@ -1832,7 +1828,7 @@ void CPICkitFunctions::timerStop() {
 }
 
 void
-CPICkitFunctions::ArrayCopy(unsigned char *source, int sourceStart, unsigned char *dest, int destStart, int length) {
+CPICkitFunctions::ArrayCopy(const unsigned char *source, int sourceStart, unsigned char *dest, int destStart, int length) {
     for (int i = 0; i < length; i++) {
         *(dest + destStart + i) = *(source + sourceStart + i);
     }
@@ -1879,27 +1875,6 @@ bool CPICkitFunctions::RunScriptUploadNoLen(int script, int repetitions) {
     }
     return result;
 }
-
-/* deprecated - causes problems with MacOS X
-bool CPICkitFunctions::RunScriptUploadNoLen2(int script, int repetitions)
-{
-    // IMPORTANT NOTE: THIS ALWAYS CLEARS THE UPLOAD BUFFER FIRST!
-
-    unsigned char commandArray[BUF_SIZE];
-    commandArray[0] = FWCMD_CLR_UPLOAD_BUFFER;
-    commandArray[1] = FWCMD_RUN_SCRIPT;
-    commandArray[2] = scriptRedirectTable[script].redirectToScriptLocation;
-    commandArray[3] = (unsigned char)repetitions;
-    commandArray[4] = FWCMD_UPLOAD_DATA_NOLEN;
-    commandArray[5] = FWCMD_UPLOAD_DATA_NOLEN;
-    bool result = writeUSB(commandArray, 6);
-    if (result)
-    {
-        result = readUSB();
-    }
-    return result;
-} */
-
 
 bool CPICkitFunctions::UploadData() {
     unsigned char commandArray[BUF_SIZE];
@@ -1971,9 +1946,9 @@ bool CPICkitFunctions::SetVDDVoltage(float voltage, float threshold) {
         voltage = 2.5F;  // minimum, as when forcing VDD Target can get set very low (last reading)
         // and too low prevents VPP pump from working.
     }
-    unsigned short int ccpValue = (unsigned short int) (voltage * 32 + 10.5);
+    auto ccpValue = (unsigned short int) (voltage * 32 + 10.5);
     ccpValue <<= 6;
-    unsigned char vFault = (unsigned char) (((threshold * voltage) / 5) * 255);
+    auto vFault = (unsigned char) (((threshold * voltage) / 5) * 255);
     if (vFault > 210) {
         vFault = 210; // ~4.12v maximum.  Because of diode droop, limit threshold on high side.
     }
@@ -1988,8 +1963,8 @@ bool CPICkitFunctions::SetVDDVoltage(float voltage, float threshold) {
 
 bool CPICkitFunctions::SetVppVoltage(float voltage, float threshold) {
     unsigned char ccpValue = 0x40;
-    unsigned char vppADC = (unsigned char) (voltage * 18.61F);
-    unsigned char vFault = (unsigned char) (threshold * voltage * 18.61F);
+    auto vppADC = (unsigned char) (voltage * 18.61F);
+    auto vFault = (unsigned char) (threshold * voltage * 18.61F);
 
     unsigned char commandArray[BUF_SIZE];
     commandArray[0] = FWCMD_SETVPP;
@@ -2036,7 +2011,7 @@ void CPICkitFunctions::SetVppFirstEnable(bool set) {
     vppFirstEnabled = set;
 }
 
-bool CPICkitFunctions::GetVppFirstEnable() {
+bool CPICkitFunctions::GetVppFirstEnable() const {
     return vppFirstEnabled;
 }
 
@@ -2044,7 +2019,7 @@ void CPICkitFunctions::SetSelfPowered(bool set) {
     targetSelfPowered = set;
 }
 
-bool CPICkitFunctions::GetSelfPowered() {
+bool CPICkitFunctions::GetSelfPowered() const {
     return targetSelfPowered;
 }
 
@@ -2053,7 +2028,7 @@ bool CPICkitFunctions::ReadPICkitVoltages(float *vdd, float *vpp) {
     commandArray[0] = FWCMD_READ_VOLTAGES;
     if (writeUSB(commandArray, 1)) {
         if (readUSB()) {
-            float valueADC = (float) ((Usb_read_array[1] * 256) + Usb_read_array[0]);
+            auto valueADC = (float) ((Usb_read_array[1] * 256) + Usb_read_array[0]);
             *vdd = (valueADC / 65536) * 5.0F;
             valueADC = (float) ((Usb_read_array[3] * 256) + Usb_read_array[2]);
             *vpp = (valueADC / 65536) * 13.7F;
@@ -2128,14 +2103,12 @@ bool CPICkitFunctions::FindDevice(_TCHAR *device) {
     return result;
 }
 
-#ifndef WIN32
-
 // Endian independent fread. This is meant to read from PK2DeviceFile.dat which is little endian.
 void freadbin(void *inbuf, int size, int count, FILE *stream) {
     int i, j;
     unsigned int data;
     unsigned char temp;
-    unsigned char *bptr = (unsigned char *) inbuf;
+    auto *bptr = (unsigned char *) inbuf;
     size_t dummyVar;
 
     for (i = 0; i < count; i++) {
@@ -2172,9 +2145,7 @@ void freadbin(void *inbuf, int size, int count, FILE *stream) {
         }
     }
 }
-
 #define fread(a, b, c, d) freadbin(a,b,c,d)
-#endif
 
 bool CPICkitFunctions::ReadDeviceFile(_TCHAR *path) {
     bool result = false;
@@ -2392,9 +2363,9 @@ void CPICkitFunctions::downloadPartScripts(int familyIndex) {
     writeUSB(commandArray, 1);
 
     // clear the script redirect table
-    for (int i = 0; i < SCRIPT_REDIR_TABLE_LEN; i++) {
-        scriptRedirectTable[i].redirectToScriptLocation = 0;
-        scriptRedirectTable[i].deviceFileScriptNumber = 0;
+    for (auto & i : scriptRedirectTable) {
+        i.redirectToScriptLocation = 0;
+        i.deviceFileScriptNumber = 0;
     }
 
     // program entry
@@ -2547,7 +2518,7 @@ unsigned int CPICkitFunctions::getScriptBufferChecksum() {
     commandArray[0] = FWCMD_SCRIPT_BUFFER_CHKSM;
     if (writeUSB(commandArray, 1)) {
         if (readUSB()) {
-            unsigned int checksum = (unsigned int) Usb_read_array[4];
+            auto checksum = (unsigned int) Usb_read_array[4];
             checksum += (unsigned int) (Usb_read_array[3] << 8);
             checksum += (unsigned int) (Usb_read_array[2] << 16);
             checksum += (unsigned int) (Usb_read_array[1] << 24);
@@ -2592,7 +2563,7 @@ bool CPICkitFunctions::downloadScript(unsigned char scriptBufferLocation, int sc
     return writeUSB(commandArray, cmdOffset);
 }
 
-bool CPICkitFunctions::writeUSB(unsigned char commandList[], int commandLength) {
+bool CPICkitFunctions::writeUSB(const unsigned char commandList[], int commandLength) {
     for (int i = 0; i < BUF_SIZE; i++) {
         if (i < commandLength)
             Usb_write_array[i] = commandList[i];
@@ -2674,7 +2645,7 @@ bool CPICkitFunctions::BL_EraseFlash() {
     return false;
 }
 
-bool CPICkitFunctions::BL_WriteFlash(unsigned char payload[]) {
+bool CPICkitFunctions::BL_WriteFlash(const unsigned char payload[]) {
     unsigned char commandArray[BUF_SIZE];
     commandArray[0] = BLCMD_WRITEFWFLASH;
     commandArray[1] = 32;
@@ -2721,7 +2692,7 @@ bool CPICkitFunctions::BL_Reset() {
 
 }
 
-bool CPICkitFunctions::UnitIDWrite(_TCHAR *unitID) {
+bool CPICkitFunctions::UnitIDWrite(const _TCHAR *unitID) {
     int length;
     for (length = 0; length < 14; length++) {
         if (unitID[length] == 0)
@@ -2895,7 +2866,7 @@ bool CPICkitFunctions::SearchDevice(int familyIndex) {
     SetMCLR(false);
 
     // NOTE: parts that only return 2 bytes for DevID will have junk in upper word.  This is OK - it gets masked off
-    unsigned int deviceID = (unsigned int) (Usb_read_array[4] * 0x1000000 + Usb_read_array[3] * 0x10000 +
+    auto deviceID = (unsigned int) (Usb_read_array[4] * 0x1000000 + Usb_read_array[3] * 0x10000 +
                                             Usb_read_array[2] * 256 + Usb_read_array[1]);
     for (int shift = 0; shift < DevFile.Families[familyIndex].ProgMemShift; shift++) {
         deviceID >>= 1;         // midrange/baseline part results must be shifted by 1
@@ -2930,13 +2901,13 @@ unsigned int CPICkitFunctions::ReadVector() {
     ExecuteScript(DevFile.PartsList[ActivePart].DebugReadVectorScript);
     UploadData();
     RunScript(SCR_PROG_EXIT, 1);
-    unsigned int vector = (unsigned int) (Usb_read_array[2] * 256 + Usb_read_array[1]);
+    auto vector = (unsigned int) (Usb_read_array[2] * 256 + Usb_read_array[1]);
     for (int shift = 0; shift < DevFile.Families[ActiveFamily].ProgMemShift; shift++) {
         vector >>= 1;         // midrange/baseline part results must be shifted by 1
     }
     vector &= DevFile.Families[ActiveFamily].BlankValue;
 
-    unsigned int vectortop = (unsigned int) (Usb_read_array[4] * 256 + Usb_read_array[3]);
+    auto vectortop = (unsigned int) (Usb_read_array[4] * 256 + Usb_read_array[3]);
     for (int shift = 0; shift < DevFile.Families[ActiveFamily].ProgMemShift; shift++) {
         vectortop >>= 1;         // midrange/baseline part results must be shifted by 1
     }
@@ -3442,7 +3413,7 @@ bool CPICkitFunctions::PIC32Read(bool progmem, bool uidmem, bool cfgmem) {
                 uploadIndex = 0;
                 for (word = 0; word < wordsPerLoop; word++) {
                     bite = 0;
-                    unsigned int memWord = (unsigned int) upload_buffer[uploadIndex + bite++];
+                    auto memWord = (unsigned int) upload_buffer[uploadIndex + bite++];
                     if (bite < bytesPerWord) {
                         memWord |= (unsigned int) upload_buffer[uploadIndex + bite++] << 8;
                     }
@@ -3494,7 +3465,7 @@ bool CPICkitFunctions::PIC32Read(bool progmem, bool uidmem, bool cfgmem) {
         uploadIndex = 0;
         for (word = 0; word < wordsPerLoop; word++) {
             bite = 0;
-            unsigned int memWord = (unsigned int) upload_buffer[uploadIndex + bite++];
+            auto memWord = (unsigned int) upload_buffer[uploadIndex + bite++];
             if (bite < bytesPerWord) {
                 memWord |= (unsigned int) upload_buffer[uploadIndex + bite++] << 8;
             }
@@ -4006,7 +3977,7 @@ bool CPICkitFunctions::P32Verify(bool writeVerify, bool progmem, bool uidmem, bo
     return true;
 }
 
-int CPICkitFunctions::p32CRC_buf(unsigned int *buffer, unsigned int startIdx, unsigned int len) {
+int CPICkitFunctions::p32CRC_buf(const unsigned int *buffer, unsigned int startIdx, unsigned int len) {
     unsigned int CRC_POLY = 0x11021;
     unsigned int CRC_SEED = 0xFFFF; //0x84CF;
 
@@ -4016,7 +3987,7 @@ int CPICkitFunctions::p32CRC_buf(unsigned int *buffer, unsigned int startIdx, un
     unsigned int CurCRCHighBit;
     unsigned int CurWord;
 
-    unsigned int bytesPerWord = (unsigned int) DevFile.Families[ActiveFamily].BytesPerLocation;
+    auto bytesPerWord = (unsigned int) DevFile.Families[ActiveFamily].BytesPerLocation;
 
     // Loop through entire address range
     for (A = startIdx; A < (startIdx + len); A++) {
@@ -4732,7 +4703,7 @@ bool CPICkitFunctions::PE33VerifyCRC() {
     RunScript(SCR_PROG_EXIT, 1);
     SetProgrammingSpeed(LastICSPSpeed);
 
-    unsigned short deviceCRC = (unsigned short) BitReverseTable[Usb_read_array[6]];
+    auto deviceCRC = (unsigned short) BitReverseTable[Usb_read_array[6]];
     deviceCRC += (unsigned short) (BitReverseTable[Usb_read_array[5]] << 8);
 
     if (deviceCRC == bufferCRC)

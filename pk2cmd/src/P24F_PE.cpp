@@ -17,11 +17,9 @@
 //---------------------------------------------------------------------------
 #include "P24F_PE.h"
 
-CP24F_PE::CP24F_PE(void) {
-}
+CP24F_PE::CP24F_PE() = default;
 
-CP24F_PE::~CP24F_PE(void) {
-}
+CP24F_PE::~CP24F_PE() = default;
 
 // Trimmed down Program Executive version 0x0026
 // -- fits in 1st page of exec mem, so cal words don't have to be saved & restored.

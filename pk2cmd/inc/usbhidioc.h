@@ -7,16 +7,22 @@
 // class CUsbhidioc : public CDialog
 class CUsbhidioc {
 public:
-	CUsbhidioc(void);
-	char* GetPK2UnitID(void);
-	bool FindTheHID(int unitIndex);
-    bool ReadReport (char *);
+    CUsbhidioc(void);
+
+    char *GetPK2UnitID(void);
+
+    bool FindTheHID(int unitIndex);
+
+    bool ReadReport(char *);
+
     bool WriteReport(char *, unsigned int);
-    void CloseReport ();
+
+    void CloseReport();
 
 protected:
     void GetDeviceCapabilities();
+
     void PrepareForOverlappedTransfer();
 
-	char m_UnitID[32];
+    char m_UnitID[32];
 };

@@ -85,26 +85,18 @@
 // Added support for import/export of BIN files for serial EEPROMs.
 // Fixed a bug that may have appended a space at the end of -gf file names on Linux.
 
-#include "stdafx.h"
-#include "stdio.h"
+#include <cstdio>
 #include "cmd_app.h"
 
-Ccmd_app pk2app;
-
-#ifdef WIN32
-int _tmain(int argc, _TCHAR* argv[])
-#else
-
 int main(int argc, char *argv[])
-#endif
 {
+    Ccmd_app pk2app;
     pk2app.PK2_CMD_Entry(argc, argv);
 
     printf("\n");
 
-    if (pk2app.ReturnCode == 0) {
+    if (pk2app.ReturnCode == 0)
         printf("Operation Succeeded\n");
-    }
 
     pk2app.ResetAtExit();
     pk2app.PicFuncs.USBClose();

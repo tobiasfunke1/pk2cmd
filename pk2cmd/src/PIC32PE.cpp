@@ -17,11 +17,9 @@
 //---------------------------------------------------------------------------
 #include "PIC32PE.h"
 
-CPIC32PE::CPIC32PE(void) {
-}
+CPIC32PE::CPIC32PE(void) = default;
 
-CPIC32PE::~CPIC32PE(void) {
-}
+CPIC32PE::~CPIC32PE(void) = default;
 
 const unsigned int CPIC32PE::pe_Loader[K_PE_LOADER_LEN] = {0x3C07, 0xDEAD,
                                                            0x3C06, 0xFF20,

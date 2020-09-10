@@ -17,10 +17,10 @@
 //
 //---------------------------------------------------------------------------
 #include "stdafx.h"
-#include "stdlib.h"
+#include <cstdlib>
 #include "cmd_app.h"
-#include "string.h"
-#include "time.h"
+#include <cstring>
+#include <ctime>
 #include <termios.h>
 
 extern bool verbose;
@@ -126,7 +126,7 @@ void Ccmd_app::PK2_CMD_Entry(int argc, _TCHAR *argv[]) {
     }
 }
 
-void Ccmd_app::ResetAtExit(void) {
+void Ccmd_app::ResetAtExit() {
     if (resetOnExit) {
         printf("Resetting PICkit 2...\n");
         fflush(stdout);
@@ -406,14 +406,14 @@ bool Ccmd_app::bootloadArg(int argc, _TCHAR *argv[]) {
                 _tcscat_s(tempString, argv[i + j]);
                 argv[i + j++] = (char *) "";
             }
-            ret = Pk2BootLoadFuncs.ReadHexAndDownload(tempString, &PicFuncs, pk2UnitIndex);
+            ret = Pk2BootLoader::ReadHexAndDownload(tempString, &PicFuncs, pk2UnitIndex);
             if (!ret) {
                 printf("Error opening hex file.\n");
                 fflush(stdout);
                 ReturnCode = OPFAILURE;
                 return true; // download command found
             }
-            ret = Pk2BootLoadFuncs.ReadHexAndVerify(tempString, &PicFuncs);
+            ret = Pk2BootLoader::ReadHexAndVerify(tempString, &PicFuncs);
             if (!ret) {
                 printf("Error validating OS download.\n");
                 fflush(stdout);
@@ -500,7 +500,7 @@ bool Ccmd_app::selectUnitArg(int argc, _TCHAR *argv[]) {
     bool listFWVer = false;
     _TCHAR unitIDString[MAX_PATH] = "";
     _TCHAR readString[MAX_PATH] = "";
-    _TCHAR *pUnitID = 0;
+    _TCHAR *pUnitID = nullptr;
 
     for (i = 1; i < argc; i++) {
         // -S use Unit ID
@@ -606,7 +606,7 @@ bool Ccmd_app::selectUnitArg(int argc, _TCHAR *argv[]) {
     return true;
 }
 
-int Ccmd_app::getPk2UnitIndex(void) {
+int Ccmd_app::getPk2UnitIndex() const {
     return pk2UnitIndex;
 }
 
@@ -698,9 +698,9 @@ Ccmd_app::priority1Args(int argc, _TCHAR *argv[], bool preserveArgs) {    // ret
                         }
                         if (ret && PicFuncs.FamilyIsEEPROM()) { // bin file
                             printf("Importing -f file as .BIN\n");
-                            ret = ImportExportFuncs.ImportBINFile(tempString, &PicFuncs);
+                            ret = CImportExportHex::ImportBINFile(tempString, &PicFuncs);
                         } else { // hex file
-                            ret = ImportExportFuncs.ImportHexFile(tempString, &PicFuncs);
+                            ret = CImportExportHex::ImportHexFile(tempString, &PicFuncs);
                         }
                         if (ret)
                             hexLoaded = true;
@@ -891,7 +891,7 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR *argv[]) {    // returns false if 
     // get current date & time
     _TCHAR stime[128] = "";
     time_t now;
-    struct tm today;
+    struct tm today{};
     _tzset();
     time(&now);
     _localtime64_s(&today, &now);
@@ -1302,7 +1302,7 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR *argv[]) {    // returns false if 
                             }
                             if (ret && PicFuncs.FamilyIsEEPROM()) { // BIN file
                                 printf("Exporting -gf file as .BIN\n");
-                                ret = ImportExportFuncs.ExportBINFile(tempString, &PicFuncs);
+                                ret = CImportExportHex::ExportBINFile(tempString, &PicFuncs);
                             } else { // hex file
                                 ret = ImportExportFuncs.ExportHexFile(tempString, &PicFuncs);
                             }
@@ -1560,7 +1560,7 @@ bool Ccmd_app::delayArg(int argc, _TCHAR *argv[]) {    // returns false if comma
     unsigned int seconds;
     bool ret = true;
 #ifndef WIN32
-    struct termios tios;
+    struct termios tios{};
 #endif
 
     for (i = 1; i < argc; i++) {
@@ -1691,7 +1691,7 @@ void Ccmd_app::printEEDataRange(int startAddr, int stopAddr) {
     fflush(stdout);
 }
 
-void Ccmd_app::printUserIDs(void) {
+void Ccmd_app::printUserIDs() {
     int startWord = 0;
     int stopWord = PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].UserIDWords - 1;
     int col;
@@ -1714,7 +1714,7 @@ void Ccmd_app::printUserIDs(void) {
     fflush(stdout);
 }
 
-void Ccmd_app::printConfiguration(void) {
+void Ccmd_app::printConfiguration() {
     int startWord = 0;
     int stopWord = PicFuncs.DevFile.PartsList[PicFuncs.ActivePart].ConfigWords - 1;
     int col;
@@ -1741,7 +1741,7 @@ void Ccmd_app::printConfiguration(void) {
     fflush(stdout);
 }
 
-bool Ccmd_app::getRange(int *start, int *stop, _TCHAR *str_range) {
+bool Ccmd_app::getRange(int *start, int *stop, const _TCHAR *str_range) {
     int i, j;
     _TCHAR temps[8] = "";
 
@@ -1765,7 +1765,7 @@ bool Ccmd_app::getRange(int *start, int *stop, _TCHAR *str_range) {
         // more than 8 character address or no address
         return false;
 
-    *start = ImportExportFuncs.ParseHex(temps, i++);
+    *start = CImportExportHex::ParseHex(temps, i++);
 
     // get stop address
     for (j = 0; j < 9; j++) {
@@ -1782,14 +1782,14 @@ bool Ccmd_app::getRange(int *start, int *stop, _TCHAR *str_range) {
         // more than 8 character address or no address
         return false;
 
-    *stop = ImportExportFuncs.ParseHex(temps, j++);
+    *stop = CImportExportHex::ParseHex(temps, j++);
     if (*start <= *stop)
         return true;
     else
         return false;
 }
 
-bool Ccmd_app::getValue(unsigned int *value, _TCHAR *str_value) {
+bool Ccmd_app::getValue(unsigned int *value, const _TCHAR *str_value) {
     int i;
     _TCHAR temps[8] = "";
 
@@ -1810,28 +1810,28 @@ bool Ccmd_app::getValue(unsigned int *value, _TCHAR *str_value) {
         // more than 8 character value or no value
         return false;
 
-    *value = ImportExportFuncs.ParseHex(temps, i++);
+    *value = CImportExportHex::ParseHex(temps, i++);
 
     return true;
 }
 
-bool Ccmd_app::checkSwitch(_TCHAR *argv) {
+bool Ccmd_app::checkSwitch(const _TCHAR *argv) {
     return ((argv[0] == '-') || (argv[0] == '/'));
 }
 
 bool Ccmd_app::findPICkit2(int unitIndex) {
-    unsigned char dot_min = PicFuncs.FW_DOT_MIN;
+    unsigned char dot_min = CPICkitFunctions::FW_DOT_MIN;
 
     if (PicFuncs.DetectPICkit2Device(unitIndex, true)) {
-        if ((PicFuncs.FirmwareVersion.major >= PicFuncs.FW_MAJ_MIN)
-            && (PicFuncs.FirmwareVersion.minor >= PicFuncs.FW_MNR_MIN)
+        if ((PicFuncs.FirmwareVersion.major >= CPICkitFunctions::FW_MAJ_MIN)
+            && (PicFuncs.FirmwareVersion.minor >= CPICkitFunctions::FW_MNR_MIN)
             && (PicFuncs.FirmwareVersion.dot >= dot_min)) {
             return true;
         }
         printf("PICkit 2 found with Operating System v%d.%02d.%02d\n", PicFuncs.FirmwareVersion.major,
                PicFuncs.FirmwareVersion.minor, PicFuncs.FirmwareVersion.dot);
-        printf("Use -D to download minimum required OS v%d.%02d.%02d or later\n", PicFuncs.FW_MAJ_MIN,
-               PicFuncs.FW_MNR_MIN, PicFuncs.FW_DOT_MIN);
+        printf("Use -D to download minimum required OS v%d.%02d.%02d or later\n", CPICkitFunctions::FW_MAJ_MIN,
+               CPICkitFunctions::FW_MNR_MIN, CPICkitFunctions::FW_DOT_MIN);
         fflush(stdout);
         ReturnCode = WRONG_OS;
     } else {
@@ -1842,7 +1842,7 @@ bool Ccmd_app::findPICkit2(int unitIndex) {
     return false;
 }
 
-void Ccmd_app::printMemError(void) {
+void Ccmd_app::printMemError() {
     if (!PicFuncs.FamilyIsPIC32() && !PicFuncs.useProgExec33()) {
         printf("Address   Good     Bad\n");
         printf("%06X    %06X   %06X\n", PicFuncs.ReadError.address, PicFuncs.ReadError.expected,
@@ -2354,7 +2354,7 @@ bool Ccmd_app::checkHelp1(int argc, _TCHAR *argv[]) { // Helps that don't need t
     return true;
 }
 
-void Ccmd_app::displayHelp(void) {
+void Ccmd_app::displayHelp() {
     printf("                        PICkit 2 COMMAND LINE HELP\n");
     printf("Options              Description                              Default\n");
     printf("----------------------------------------------------------------------------\n");

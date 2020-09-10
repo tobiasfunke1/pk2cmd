@@ -25,14 +25,12 @@
 #define    USB_HOTPLUG
 
 #include <cstdio>
-#include <cctype>
 #include <cstring>
 
 #include "usb.h" // libusb header
-#include <unistd.h> // for geteuid
+ // for geteuid
 
 
-#include "stdafx.h"
 #include "pk2usb.h"
 
 #if HAVE_LIBUSB_OLD_BULK_MODE
@@ -186,7 +184,7 @@ pickit_dev *usbPickitOpen(int unitIndex, char *unitID) {
     struct usb_device *device;
     struct usb_device *usb_devices;
     struct usb_bus *bus;
-    usb_dev_handle *d = nullptr;
+    usb_dev_handle *d;
     char unitIDSerial[64];
     byte retData[reqLen + 1];
 

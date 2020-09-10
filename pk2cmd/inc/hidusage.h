@@ -23,7 +23,7 @@
 #ifndef __HIDUSAGE_H
 #define __HIDUSAGE_H
 
-#if __GNUC__ >=3
+#if __GNUC__ >= 3
 #pragma GCC system_header
 #endif
 
@@ -31,7 +31,7 @@
 extern "C" {
 #endif
 
-#pragma pack(push,4)
+#pragma pack(push, 4)
 
 typedef USHORT USAGE, *PUSAGE;
 

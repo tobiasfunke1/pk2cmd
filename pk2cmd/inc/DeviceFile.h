@@ -8,6 +8,7 @@ class CDeviceFile {
 
 public:
     CDeviceFile();
+
     ~CDeviceFile();
 
     struct DeviceFileParams {

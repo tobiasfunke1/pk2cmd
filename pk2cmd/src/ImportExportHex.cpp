@@ -19,11 +19,9 @@
 #include "ImportExportHex.h"
 #include "PIC32PE.h"
 
-CImportExportHex::CImportExportHex(void) {
-}
+CImportExportHex::CImportExportHex(void) = default;
 
-CImportExportHex::~CImportExportHex(void) {
-}
+CImportExportHex::~CImportExportHex(void) = default;
 
 bool CImportExportHex::ImportHexFile(_TCHAR *filePath, CPICkitFunctions *picFuncs) {
     bool ret = true;
@@ -68,9 +66,9 @@ bool CImportExportHex::ImportHexFile(_TCHAR *filePath, CPICkitFunctions *picFunc
 
         _TCHAR fileLine[MAX_LINE_LEN] = "";
         while (!feof(hexfile)) {
-            if (_fgetts(fileLine, MAX_LINE_LEN, hexfile) == NULL) {
+            if (_fgetts(fileLine, MAX_LINE_LEN, hexfile) == nullptr) {
                 printf("\n Error reading hex file.\n");
-                if (hexfile != NULL)
+                if (hexfile != nullptr)
                     fclose(hexfile);
                 return false;
             }
@@ -240,7 +238,7 @@ bool CImportExportHex::ImportHexFile(_TCHAR *filePath, CPICkitFunctions *picFunc
         printf("\n Hex file not found.\n");
         ret = false;
     }
-    if (hexfile != NULL)
+    if (hexfile != nullptr)
         fclose(hexfile);
 
     return ret;
@@ -253,7 +251,7 @@ bool CImportExportHex::ImportBINFile(_TCHAR *filePath, CPICkitFunctions *picFunc
     picFuncs->ResetBuffers();
 
     if ((err = fopen_s(&binfile, filePath, "rb")) != 0) {
-        if (binfile != NULL)
+        if (binfile != nullptr)
             fclose(binfile);
         printf("\n BIN file not found.\n");
         return false;
@@ -279,14 +277,14 @@ bool CImportExportHex::ImportBINFile(_TCHAR *filePath, CPICkitFunctions *picFunc
         }
     }
 
-    if (binfile != NULL)
+    if (binfile != nullptr)
         fclose(binfile);
 
     return true;
 }
 
 
-int CImportExportHex::ParseHex(_TCHAR *characters, int length) {
+int CImportExportHex::ParseHex(const _TCHAR *characters, int length) {
     int integer = 0;
 
     for (int i = 0; i < length; i++) {
@@ -392,7 +390,41 @@ bool CImportExportHex::ExportHexFile(_TCHAR *filePath, CPICkitFunctions *picFunc
         int arrayIndex = 0;
         int bytesPerWord = picFuncs->DevFile.Families[picFuncs->ActiveFamily].ProgMemHexBytes;
         int arrayIncrement = 16 / bytesPerWord;     // # array words per hex line.
-        if (1) {
+        do {
+            _stprintf_s(hexLine, 80, ":10%04X00", fileAddress);
+            for (int i = 0; i < arrayIncrement; i++) {
+                // convert entire array word to hex string of 4 bytes.
+                _stprintf_s(hexWord, 32, "%08X", picFuncs->DeviceBuffers->ProgramMemory[arrayIndex + i]);
+                for (int j = 0; j < bytesPerWord; j++) {
+                    _tcsncat_s(hexLine, &hexWord[6 - 2 * j], 2);
+                }
+            }
+            _stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
+            _tcsncat_s(hexLine, hexWord, 3);
+            _fputts(hexLine, hexfile);
+
+            fileAddress += 16;
+            arrayIndex += arrayIncrement;
+
+            // check for segment boundary
+            if ((fileAddress > 0xFFFF) &&
+                (arrayIndex < (int) picFuncs->DevFile.PartsList[picFuncs->ActivePart].ProgramMem)) {
+                fileSegment += fileAddress >> 16;
+                fileAddress &= 0xFFFF;
+                _stprintf_s(hexLine, 80, ":02000004%04X", fileSegment);
+                _stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
+                _tcsncat_s(hexLine, hexWord, 3);
+                _fputts(hexLine, hexfile);
+            }
+
+        } while (arrayIndex < programEnd);
+        // Boot Memory ----------------------------------------------------------------------------
+        if ((picFuncs->DevFile.PartsList[picFuncs->ActivePart].BootFlash > 0) && picFuncs->FamilyIsPIC32()) {
+            _fputts(":020000041FC01B\n", hexfile);
+            arrayIndex = programEnd;
+            programEnd = (int) picFuncs->DevFile.PartsList[picFuncs->ActivePart].ProgramMem;
+            fileSegment = (int) (K_P32_BOOT_FLASH_START_ADDR >> 16);
+            fileAddress = (int) (K_P32_BOOT_FLASH_START_ADDR & 0xFFFF);
             do {
                 _stprintf_s(hexLine, 80, ":10%04X00", fileAddress);
                 for (int i = 0; i < arrayIncrement; i++) {
@@ -418,172 +450,128 @@ bool CImportExportHex::ExportHexFile(_TCHAR *filePath, CPICkitFunctions *picFunc
                     _stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
                     _tcsncat_s(hexLine, hexWord, 3);
                     _fputts(hexLine, hexfile);
+
                 }
 
             } while (arrayIndex < programEnd);
         }
-        // Boot Memory ----------------------------------------------------------------------------
-        if ((picFuncs->DevFile.PartsList[picFuncs->ActivePart].BootFlash > 0) && picFuncs->FamilyIsPIC32()) {
-            _fputts(":020000041FC01B\n", hexfile);
-            arrayIndex = programEnd;
-            programEnd = (int) picFuncs->DevFile.PartsList[picFuncs->ActivePart].ProgramMem;
-            fileSegment = (int) (K_P32_BOOT_FLASH_START_ADDR >> 16);
-            fileAddress = (int) (K_P32_BOOT_FLASH_START_ADDR & 0xFFFF);
-            if (1) {
-                do {
-                    _stprintf_s(hexLine, 80, ":10%04X00", fileAddress);
-                    for (int i = 0; i < arrayIncrement; i++) {
-                        // convert entire array word to hex string of 4 bytes.
-                        _stprintf_s(hexWord, 32, "%08X", picFuncs->DeviceBuffers->ProgramMemory[arrayIndex + i]);
-                        for (int j = 0; j < bytesPerWord; j++) {
-                            _tcsncat_s(hexLine, &hexWord[6 - 2 * j], 2);
-                        }
-                    }
-                    _stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
-                    _tcsncat_s(hexLine, hexWord, 3);
-                    _fputts(hexLine, hexfile);
-
-                    fileAddress += 16;
-                    arrayIndex += arrayIncrement;
-
-                    // check for segment boundary
-                    if ((fileAddress > 0xFFFF) &&
-                        (arrayIndex < (int) picFuncs->DevFile.PartsList[picFuncs->ActivePart].ProgramMem)) {
-                        fileSegment += fileAddress >> 16;
-                        fileAddress &= 0xFFFF;
-                        _stprintf_s(hexLine, 80, ":02000004%04X", fileSegment);
-                        _stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
-                        _tcsncat_s(hexLine, hexWord, 3);
-                        _fputts(hexLine, hexfile);
-
-                    }
-
-                } while (arrayIndex < programEnd);
-            }
-        }
         // EEPROM -------------------------------------------------------------------------------------
-        if (1) {
-            int eeSize = picFuncs->DevFile.PartsList[picFuncs->ActivePart].EEMem;
-            arrayIndex = 0;
-            if (eeSize > 0) {
-                unsigned int eeAddr = picFuncs->DevFile.PartsList[picFuncs->ActivePart].EEAddr;
-                if ((eeAddr & 0xFFFF0000) > 0) { // need a segment address
-                    _stprintf_s(hexLine, 80, ":02000004%04X", (eeAddr >> 16));
-                    _stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
-                    _tcsncat_s(hexLine, hexWord, 3);
-                    _fputts(hexLine, hexfile);
-                }
-
-                fileAddress = (int) eeAddr & 0xFFFF;
-                int eeBytesPerWord = picFuncs->DevFile.Families[picFuncs->ActiveFamily].EEMemHexBytes;
-                arrayIncrement = 16 / eeBytesPerWord;     // # array words per hex line.
-                do {
-                    _stprintf_s(hexLine, 80, ":10%04X00", fileAddress);
-                    for (int i = 0; i < arrayIncrement; i++) {
-                        // convert entire array word to hex string of 4 bytes.
-                        _stprintf_s(hexWord, 32, "%08X", picFuncs->DeviceBuffers->EEPromMemory[arrayIndex + i]);
-                        for (int j = 0; j < eeBytesPerWord; j++) {
-                            _tcsncat_s(hexLine, &hexWord[6 - 2 * j], 2);
-                        }
-                    }
-                    _stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
-                    _tcsncat_s(hexLine, hexWord, 3);
-                    _fputts(hexLine, hexfile);
-
-                    fileAddress += 16;
-                    arrayIndex += arrayIncrement;
-                } while (arrayIndex < eeSize);
-
+        int eeSize = picFuncs->DevFile.PartsList[picFuncs->ActivePart].EEMem;
+        arrayIndex = 0;
+        if (eeSize > 0) {
+            unsigned int eeAddr = picFuncs->DevFile.PartsList[picFuncs->ActivePart].EEAddr;
+            if ((eeAddr & 0xFFFF0000) > 0) { // need a segment address
+                _stprintf_s(hexLine, 80, ":02000004%04X", (eeAddr >> 16));
+                _stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
+                _tcsncat_s(hexLine, hexWord, 3);
+                _fputts(hexLine, hexfile);
             }
+
+            fileAddress = (int) eeAddr & 0xFFFF;
+            int eeBytesPerWord = picFuncs->DevFile.Families[picFuncs->ActiveFamily].EEMemHexBytes;
+            arrayIncrement = 16 / eeBytesPerWord;     // # array words per hex line.
+            do {
+                _stprintf_s(hexLine, 80, ":10%04X00", fileAddress);
+                for (int i = 0; i < arrayIncrement; i++) {
+                    // convert entire array word to hex string of 4 bytes.
+                    _stprintf_s(hexWord, 32, "%08X", picFuncs->DeviceBuffers->EEPromMemory[arrayIndex + i]);
+                    for (int j = 0; j < eeBytesPerWord; j++) {
+                        _tcsncat_s(hexLine, &hexWord[6 - 2 * j], 2);
+                    }
+                }
+                _stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
+                _tcsncat_s(hexLine, hexWord, 3);
+                _fputts(hexLine, hexfile);
+
+                fileAddress += 16;
+                arrayIndex += arrayIncrement;
+            } while (arrayIndex < eeSize);
+
         }
         // Configuration Words ------------------------------------------------------------------------
-        if (1) {
-            int cfgBytesPerWord = bytesPerWord;
-            if (picFuncs->FamilyIsPIC32()) {
-                cfgBytesPerWord = 2;
+        int cfgBytesPerWord = bytesPerWord;
+        if (picFuncs->FamilyIsPIC32()) {
+            cfgBytesPerWord = 2;
+        }
+        int configWords = picFuncs->DevFile.PartsList[picFuncs->ActivePart].ConfigWords;
+        if ((configWords > 0) && (picFuncs->DevFile.PartsList[picFuncs->ActivePart].ConfigAddr >
+                                  (picFuncs->DevFile.PartsList[picFuncs->ActivePart].ProgramMem *
+                                   bytesPerWord))) { // If there are Config words and they aren't at the end of program flash
+            unsigned int configAddr = picFuncs->DevFile.PartsList[picFuncs->ActivePart].ConfigAddr;
+            if ((configAddr & 0xFFFF0000) > 0) { // need a segment address
+                _stprintf_s(hexLine, 80, ":02000004%04X", (configAddr >> 16));
+                _stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
+                _tcsncat_s(hexLine, hexWord, 3);
+                _fputts(hexLine, hexfile);
             }
-            int configWords = picFuncs->DevFile.PartsList[picFuncs->ActivePart].ConfigWords;
-            if ((configWords > 0) && (picFuncs->DevFile.PartsList[picFuncs->ActivePart].ConfigAddr >
-                                      (picFuncs->DevFile.PartsList[picFuncs->ActivePart].ProgramMem *
-                                       bytesPerWord))) { // If there are Config words and they aren't at the end of program flash
-                unsigned int configAddr = picFuncs->DevFile.PartsList[picFuncs->ActivePart].ConfigAddr;
-                if ((configAddr & 0xFFFF0000) > 0) { // need a segment address
-                    _stprintf_s(hexLine, 80, ":02000004%04X", (configAddr >> 16));
-                    _stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
-                    _tcsncat_s(hexLine, hexWord, 3);
-                    _fputts(hexLine, hexfile);
-                }
 
-                fileAddress = (int) configAddr & 0xFFFF;
+            fileAddress = (int) configAddr & 0xFFFF;
 
-                int cfgsWritten = 0;
-                for (int lines = 0; lines < (((configWords * cfgBytesPerWord - 1) / 16) + 1); lines++) {
-                    int cfgsLeft = configWords - cfgsWritten;
-                    if (cfgsLeft >= (16 / cfgBytesPerWord)) {
-                        cfgsLeft = (16 / cfgBytesPerWord);
-                    }
-                    _stprintf_s(hexLine, 80, ":%02X%04X00", (cfgsLeft * cfgBytesPerWord), fileAddress);
-                    fileAddress += (cfgsLeft * cfgBytesPerWord);
-                    for (int i = 0; i < cfgsLeft; i++) {
-                        // convert entire array word to hex string of 4 bytes.
-                        unsigned int cfgWord = picFuncs->DeviceBuffers->ConfigWords[cfgsWritten + i];
-                        if (picFuncs->FamilyIsPIC32()) {// PIC32
-                            cfgWord |= ~(unsigned int) picFuncs->DevFile.PartsList[picFuncs->ActivePart].ConfigMasks[
-                                    cfgsWritten + i];
-                            cfgWord &= picFuncs->DevFile.PartsList[picFuncs->ActivePart].ConfigBlank[cfgsWritten + i];
-                        }
-                        _stprintf_s(hexWord, 32, "%08X", picFuncs->DeviceBuffers->ConfigWords[cfgsWritten + i]);
-                        for (int j = 0; j < cfgBytesPerWord; j++) {
-                            _tcsncat_s(hexLine, &hexWord[8 - ((j + 1) * 2)], 2);
-                        }
-                    }
-                    _stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
-                    _tcsncat_s(hexLine, hexWord, 3);
-                    _fputts(hexLine, hexfile);
-                    cfgsWritten += cfgsLeft;
+            int cfgsWritten = 0;
+            for (int lines = 0; lines < (((configWords * cfgBytesPerWord - 1) / 16) + 1); lines++) {
+                int cfgsLeft = configWords - cfgsWritten;
+                if (cfgsLeft >= (16 / cfgBytesPerWord)) {
+                    cfgsLeft = (16 / cfgBytesPerWord);
                 }
+                _stprintf_s(hexLine, 80, ":%02X%04X00", (cfgsLeft * cfgBytesPerWord), fileAddress);
+                fileAddress += (cfgsLeft * cfgBytesPerWord);
+                for (int i = 0; i < cfgsLeft; i++) {
+                    // convert entire array word to hex string of 4 bytes.
+                    unsigned int cfgWord = picFuncs->DeviceBuffers->ConfigWords[cfgsWritten + i];
+                    if (picFuncs->FamilyIsPIC32()) {// PIC32
+                        cfgWord |= ~(unsigned int) picFuncs->DevFile.PartsList[picFuncs->ActivePart].ConfigMasks[
+                                cfgsWritten + i];
+                        cfgWord &= picFuncs->DevFile.PartsList[picFuncs->ActivePart].ConfigBlank[cfgsWritten + i];
+                    }
+                    _stprintf_s(hexWord, 32, "%08X", picFuncs->DeviceBuffers->ConfigWords[cfgsWritten + i]);
+                    for (int j = 0; j < cfgBytesPerWord; j++) {
+                        _tcsncat_s(hexLine, &hexWord[8 - ((j + 1) * 2)], 2);
+                    }
+                }
+                _stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
+                _tcsncat_s(hexLine, hexWord, 3);
+                _fputts(hexLine, hexfile);
+                cfgsWritten += cfgsLeft;
             }
         }
 
         // UserIDs ------------------------------------------------------------------------------------
-        if (1) {
-            int userIDs = picFuncs->DevFile.PartsList[picFuncs->ActivePart].UserIDWords;
-            arrayIndex = 0;
-            if (userIDs > 0) {
-                unsigned int uIDAddr = picFuncs->DevFile.PartsList[picFuncs->ActivePart].UserIDAddr;
-                if ((uIDAddr & 0xFFFF0000) > 0) { // need a segment address
-                    _stprintf_s(hexLine, 80, ":02000004%04X", (uIDAddr >> 16));
-                    _stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
-                    _tcsncat_s(hexLine, hexWord, 3);
-                    _fputts(hexLine, hexfile);
-                }
-
-                fileAddress = (int) uIDAddr & 0xFFFF;
-                int idBytesPerWord = picFuncs->DevFile.Families[picFuncs->ActiveFamily].UserIDHexBytes;
-                arrayIncrement = 16 / idBytesPerWord;     // # array words per hex line.
-                do {
-                    int remainingBytes = (userIDs - arrayIndex) * idBytesPerWord;
-                    if (remainingBytes < 16) {
-                        _stprintf_s(hexLine, 80, ":%02X%04X00", remainingBytes, fileAddress);
-                        arrayIncrement = (userIDs - arrayIndex);
-                    } else {
-                        _stprintf_s(hexLine, 80, ":10%04X00", fileAddress);
-                    }
-                    for (int i = 0; i < arrayIncrement; i++) {
-                        // convert entire array word to hex string of 4 bytes.
-                        _stprintf_s(hexWord, 32, "%08X", picFuncs->DeviceBuffers->UserIDs[arrayIndex + i]);
-                        for (int j = 0; j < idBytesPerWord; j++) {
-                            _tcsncat_s(hexLine, &hexWord[6 - 2 * j], 2);
-                        }
-                    }
-                    _stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
-                    _tcsncat_s(hexLine, hexWord, 3);
-                    _fputts(hexLine, hexfile);
-
-                    fileAddress += 16;
-                    arrayIndex += arrayIncrement;
-                } while (arrayIndex < userIDs);
+        int userIDs = picFuncs->DevFile.PartsList[picFuncs->ActivePart].UserIDWords;
+        arrayIndex = 0;
+        if (userIDs > 0) {
+            unsigned int uIDAddr = picFuncs->DevFile.PartsList[picFuncs->ActivePart].UserIDAddr;
+            if ((uIDAddr & 0xFFFF0000) > 0) { // need a segment address
+                _stprintf_s(hexLine, 80, ":02000004%04X", (uIDAddr >> 16));
+                _stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
+                _tcsncat_s(hexLine, hexWord, 3);
+                _fputts(hexLine, hexfile);
             }
+
+            fileAddress = (int) uIDAddr & 0xFFFF;
+            int idBytesPerWord = picFuncs->DevFile.Families[picFuncs->ActiveFamily].UserIDHexBytes;
+            arrayIncrement = 16 / idBytesPerWord;     // # array words per hex line.
+            do {
+                int remainingBytes = (userIDs - arrayIndex) * idBytesPerWord;
+                if (remainingBytes < 16) {
+                    _stprintf_s(hexLine, 80, ":%02X%04X00", remainingBytes, fileAddress);
+                    arrayIncrement = (userIDs - arrayIndex);
+                } else {
+                    _stprintf_s(hexLine, 80, ":10%04X00", fileAddress);
+                }
+                for (int i = 0; i < arrayIncrement; i++) {
+                    // convert entire array word to hex string of 4 bytes.
+                    _stprintf_s(hexWord, 32, "%08X", picFuncs->DeviceBuffers->UserIDs[arrayIndex + i]);
+                    for (int j = 0; j < idBytesPerWord; j++) {
+                        _tcsncat_s(hexLine, &hexWord[6 - 2 * j], 2);
+                    }
+                }
+                _stprintf_s(hexWord, 32, "%02X\n", computeChecksum(hexLine));
+                _tcsncat_s(hexLine, hexWord, 3);
+                _fputts(hexLine, hexfile);
+
+                fileAddress += 16;
+                arrayIndex += arrayIncrement;
+            } while (arrayIndex < userIDs);
         }
         //end of record line.
         _fputts(":00000001FF\n", hexfile);
@@ -592,7 +580,7 @@ bool CImportExportHex::ExportHexFile(_TCHAR *filePath, CPICkitFunctions *picFunc
         ret = false;
     }
 
-    if (hexfile != NULL)
+    if (hexfile != nullptr)
         fclose(hexfile);
 
     return ret;
@@ -604,7 +592,7 @@ bool CImportExportHex::ExportBINFile(_TCHAR *filePath, CPICkitFunctions *picFunc
     errno_t err;
 
     if ((err = fopen_s(&binfile, filePath, "wb")) != 0) {
-        if (binfile != NULL)
+        if (binfile != nullptr)
             fclose(binfile);
         printf("\nError Opening save file.\n");
         return false;
@@ -616,13 +604,13 @@ bool CImportExportHex::ExportBINFile(_TCHAR *filePath, CPICkitFunctions *picFunc
             fileByte = (unsigned char) ((picFuncs->DeviceBuffers->ProgramMemory[memLoc] >> (8 * byteNum)) & 0xFF);
             if ((long) fwrite(&fileByte, sizeof(fileByte), 1, binfile) != 1) {
                 printf("\nError writing to save file.\n");
-                if (binfile != NULL)
+                if (binfile != nullptr)
                     fclose(binfile);
                 return false;
             }
         }
     }
-    if (binfile != NULL)
+    if (binfile != nullptr)
         fclose(binfile);
 
     return true;

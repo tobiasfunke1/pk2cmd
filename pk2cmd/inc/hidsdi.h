@@ -30,24 +30,25 @@ Environment:
 //#include <basetyps.h>
 
 typedef LONG NTSTATUS;
+
 #include "hidusage.h"
 #include "hidpi.h"
 
 typedef struct _HIDD_CONFIGURATION {
-    PVOID    cookie;
-    ULONG    size;
-    ULONG    RingBufferSize;
+    PVOID cookie;
+    ULONG size;
+    ULONG RingBufferSize;
 } HIDD_CONFIGURATION, *PHIDD_CONFIGURATION;
 
 typedef struct _HIDD_ATTRIBUTES {
-    ULONG   Size; // = sizeof (struct _HIDD_ATTRIBUTES)
+    ULONG Size; // = sizeof (struct _HIDD_ATTRIBUTES)
 
     //
     // Vendor ids of this hid device
     //
-    USHORT  VendorID;
-    USHORT  ProductID;
-    USHORT  VersionNumber;
+    USHORT VendorID;
+    USHORT ProductID;
+    USHORT VersionNumber;
 
     //
     // Additional fields will be added to the end of this structure.
@@ -57,10 +58,12 @@ typedef struct _HIDD_ATTRIBUTES {
 extern "C" {
 
 BOOLEAN __stdcall
-HidD_GetAttributes (
-    IN  HANDLE              HidDeviceObject,
-    OUT PHIDD_ATTRIBUTES    Attributes
-    );
+        HidD_GetAttributes(
+        IN
+HANDLE HidDeviceObject,
+        OUT
+PHIDD_ATTRIBUTES Attributes
+) ;
 /*++
 Routine Description:
     Fill in the given HIDD_ATTRIBUTES structure with the attributes of the
@@ -70,15 +73,18 @@ Routine Description:
 
 
 void __stdcall
-HidD_GetHidGuid (
-   OUT   LPGUID   HidGuid
-   );
+        HidD_GetHidGuid(
+        OUT
+LPGUID HidGuid
+) ;
 
 BOOLEAN __stdcall
-HidD_GetPreparsedData (
-   IN    HANDLE                  HidDeviceObject,
-   OUT   PHIDP_PREPARSED_DATA  * PreparsedData
-   );
+        HidD_GetPreparsedData(
+        IN
+HANDLE HidDeviceObject,
+        OUT
+PHIDP_PREPARSED_DATA *PreparsedData
+) ;
 /*++
 Routine Description:
     Given a handle to a valid Hid Class Device Object, retrieve the preparsed
@@ -101,14 +107,16 @@ Return Value:
 --*/
 
 BOOLEAN __stdcall
-HidD_FreePreparsedData (
-   IN    PHIDP_PREPARSED_DATA PreparsedData
-   );
+        HidD_FreePreparsedData(
+        IN
+PHIDP_PREPARSED_DATA PreparsedData
+) ;
 
 BOOLEAN __stdcall
-HidD_FlushQueue (
-   IN    HANDLE                HidDeviceObject
-   );
+        HidD_FlushQueue(
+        IN
+HANDLE HidDeviceObject
+) ;
 /*++
 Routine Description:
     Flush the input queue for the given HID device.
@@ -124,11 +132,14 @@ Return Value:
 --*/
 
 BOOLEAN __stdcall
-HidD_GetConfiguration (
-   IN   HANDLE               HidDeviceObject,
-   OUT  PHIDD_CONFIGURATION  Configuration,
-   IN   ULONG                ConfigurationLength
-   );
+        HidD_GetConfiguration(
+        IN
+HANDLE HidDeviceObject,
+        OUT
+PHIDD_CONFIGURATION Configuration,
+        IN
+ULONG ConfigurationLength
+) ;
 /*++
 Routine Description:
     Get the configuration information for this Hid device
@@ -150,11 +161,14 @@ Return Value:
 --*/
 
 BOOLEAN __stdcall
-HidD_SetConfiguration (
-   IN   HANDLE               HidDeviceObject,
-   IN   PHIDD_CONFIGURATION  Configuration,
-   IN   ULONG                ConfigurationLength
-   );
+        HidD_SetConfiguration(
+        IN
+HANDLE HidDeviceObject,
+        IN
+PHIDD_CONFIGURATION Configuration,
+        IN
+ULONG ConfigurationLength
+) ;
 /*++
 Routine Description:
    Set the configuration information for this Hid device...
@@ -180,11 +194,14 @@ Return Value:
 --*/
 
 BOOLEAN __stdcall
-HidD_GetFeature (
-   IN    HANDLE   HidDeviceObject,
-   OUT   PVOID    ReportBuffer,
-   IN    ULONG    ReportBufferLength
-   );
+        HidD_GetFeature(
+        IN
+HANDLE HidDeviceObject,
+        OUT
+PVOID ReportBuffer,
+        IN
+ULONG ReportBufferLength
+) ;
 /*++
 Routine Description:
     Retrieve a feature report from a HID device.
@@ -206,11 +223,14 @@ Return Value:
 --*/
 
 BOOLEAN __stdcall
-HidD_SetFeature (
-   IN    HANDLE   HidDeviceObject,
-   IN    PVOID    ReportBuffer,
-   IN    ULONG    ReportBufferLength
-   );
+        HidD_SetFeature(
+        IN
+HANDLE HidDeviceObject,
+        IN
+PVOID ReportBuffer,
+        IN
+ULONG ReportBufferLength
+) ;
 /*++
 Routine Description:
     Send a feature report to a HID device.
@@ -230,10 +250,12 @@ Return Value:
 --*/
 
 BOOLEAN __stdcall
-HidD_GetNumInputBuffers (
-    IN  HANDLE  HidDeviceObject,
-    OUT PULONG  NumberBuffers
-    );
+        HidD_GetNumInputBuffers(
+        IN
+HANDLE HidDeviceObject,
+        OUT
+PULONG NumberBuffers
+) ;
 /*++
 Routine Description:
     This function returns the number of input buffers used by the specified
@@ -253,10 +275,12 @@ Return Value:
 --*/
 
 BOOLEAN __stdcall
-HidD_SetNumInputBuffers (
-    IN  HANDLE HidDeviceObject,
-    OUT ULONG  NumberBuffers
-    );
+        HidD_SetNumInputBuffers(
+        IN
+HANDLE HidDeviceObject,
+        OUT
+ULONG NumberBuffers
+) ;
 /*++
 
 Routine Description:
@@ -277,11 +301,14 @@ Return Value:
 --*/
 
 BOOLEAN __stdcall
-HidD_GetPhysicalDescriptor (
-   IN    HANDLE   HidDeviceObject,
-   OUT   PVOID    Buffer,
-   IN    ULONG    BufferLength
-   );
+        HidD_GetPhysicalDescriptor(
+        IN
+HANDLE HidDeviceObject,
+        OUT
+PVOID Buffer,
+        IN
+ULONG BufferLength
+) ;
 /*++
 Routine Description:
     This function retrieves the raw physical descriptor for the specified
@@ -303,11 +330,14 @@ Return Value:
 --*/
 
 BOOLEAN __stdcall
-HidD_GetManufacturerString (
-   IN    HANDLE   HidDeviceObject,
-   OUT   PVOID    Buffer,
-   IN    ULONG    BufferLength
-   );
+        HidD_GetManufacturerString(
+        IN
+HANDLE HidDeviceObject,
+        OUT
+PVOID Buffer,
+        IN
+ULONG BufferLength
+) ;
 /*++
 Routine Description:
     This function retrieves the manufacturer string from the specified
@@ -329,11 +359,14 @@ Return Value:
 --*/
 
 BOOLEAN __stdcall
-HidD_GetProductString (
-   IN    HANDLE   HidDeviceObject,
-   OUT   PVOID    Buffer,
-   IN    ULONG    BufferLength
-   );
+        HidD_GetProductString(
+        IN
+HANDLE HidDeviceObject,
+        OUT
+PVOID Buffer,
+        IN
+ULONG BufferLength
+) ;
 /*++
 Routine Description:
     This function retrieves the product string from the specified
@@ -355,12 +388,16 @@ Return Value:
 --*/
 
 BOOLEAN __stdcall
-HidD_GetIndexedString (
-   IN    HANDLE   HidDeviceObject,
-   IN    ULONG    StringIndex,
-   OUT   PVOID    Buffer,
-   IN    ULONG    BufferLength
-   );
+        HidD_GetIndexedString(
+        IN
+HANDLE HidDeviceObject,
+        IN
+ULONG StringIndex,
+        OUT
+PVOID Buffer,
+        IN
+ULONG BufferLength
+) ;
 /*++
 Routine Description:
     This function retrieves a string from the specified Hid device that is
@@ -383,11 +420,14 @@ Return Value:
 --*/
 
 BOOLEAN __stdcall
-HidD_GetSerialNumberString (
-   IN    HANDLE   HidDeviceObject,
-   OUT   PVOID    Buffer,
-   IN    ULONG    BufferLength
-   );
+        HidD_GetSerialNumberString(
+        IN
+HANDLE HidDeviceObject,
+        OUT
+PVOID Buffer,
+        IN
+ULONG BufferLength
+) ;
 /*++
 Routine Description:
     This function retrieves the serial number string from the specified
