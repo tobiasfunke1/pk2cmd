@@ -1,8 +1,7 @@
-pk2cmd/pk2cmd
+build/
 
-
-# Created by https://www.toptal.com/developers/gitignore/api/c++,python,clion+all,intellij+all,linux,git
-# Edit at https://www.toptal.com/developers/gitignore?templates=c++,python,clion+all,intellij+all,linux,git
+# Created by https://www.toptal.com/developers/gitignore/api/git,c++,linux,python,clion+all,intellij+all,cmake,ninja
+# Edit at https://www.toptal.com/developers/gitignore?templates=git,c++,linux,python,clion+all,intellij+all,cmake,ninja
 
 ### C++ ###
 # Prerequisites
@@ -127,6 +126,23 @@ modules.xml
 # Sonarlint plugin
 .idea/sonarlint
 
+### CMake ###
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+### CMake Patch ###
+# External projects
+*-prefix/
+
 ### Git ###
 # Created by git for backups. To disable backups in Git:
 # $ git config --global mergetool.keepBackup false
@@ -211,6 +227,10 @@ modules.xml
 
 # .nfs files are created when an open file is removed but is still being accessed
 .nfs*
+
+### Ninja ###
+.ninja_deps
+.ninja_log
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
@@ -347,4 +367,4 @@ dmypy.json
 # pytype static type analyzer
 .pytype/
 
-# End of https://www.toptal.com/developers/gitignore/api/c++,python,clion+all,intellij+all,linux,git
+# End of https://www.toptal.com/developers/gitignore/api/git,c++,linux,python,clion+all,intellij+all,cmake,ninja
