@@ -1304,7 +1304,7 @@ bool Ccmd_app::priority2Args(int argc, _TCHAR *argv[]) {    // returns false if 
                                 printf("Exporting -gf file as .BIN\n");
                                 ret = CImportExportHex::ExportBINFile(tempString, &PicFuncs);
                             } else { // hex file
-                                ret = ImportExportFuncs.ExportHexFile(tempString, &PicFuncs);
+                                ret = CImportExportHex::ExportHexFile(tempString, &PicFuncs);
                             }
                             if (ret) {
                                 printf("Read successfully.\n");
@@ -1553,15 +1553,12 @@ bool Ccmd_app::priority4Args(int argc, _TCHAR *argv[]) {    // returns false if 
 }
 
 bool Ccmd_app::delayArg(int argc, _TCHAR *argv[]) {    // returns false if command has an error.
-
     // delay arg is -H
     // This must be processed last
     int i;
     unsigned int seconds;
     bool ret = true;
-#ifndef WIN32
     struct termios tios{};
-#endif
 
     for (i = 1; i < argc; i++) {
         if (checkSwitch(argv[i])) {
@@ -1578,16 +1575,12 @@ bool Ccmd_app::delayArg(int argc, _TCHAR *argv[]) {    // returns false if comma
                         if ((argv[i][2] == 'K') || (argv[i][2] == 'k')) {
                             printf("\nPress any key to exit.\n");
                             fflush(stdout);
-#ifdef WIN32
-                            while(_kbhit() == 0) {};
-#else
                             tcgetattr(0, &tios);
                             tios.c_lflag &= (~(ICANON | ECHO));
                             tcsetattr(0, TCSANOW, &tios);
                             getc(stdin);
                             tios.c_lflag |= (ICANON | ECHO);
                             tcsetattr(0, TCSANOW, &tios);
-#endif
                         } else if (getValue(&seconds, &argv[i][2])) {
                             if (seconds == 0) { // bad value
                                 printf("-H Invalid value.\n");

@@ -299,13 +299,12 @@ int usb_resetep(usb_dev_handle *dev, unsigned int ep);
 int usb_clear_halt(usb_dev_handle *dev, unsigned int ep);
 int usb_reset(usb_dev_handle *dev);
 
-#if 1
 #define LIBUSB_HAS_GET_DRIVER_NP 1
 int usb_get_driver_np(usb_dev_handle *dev, int interface, char *name,
                       unsigned int namelen);
 #define LIBUSB_HAS_DETACH_KERNEL_DRIVER_NP 1
 int usb_detach_kernel_driver_np(usb_dev_handle *dev, int interface);
-#endif
+
 
 char *usb_strerror(void);
 

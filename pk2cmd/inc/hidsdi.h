@@ -23,12 +23,6 @@ Environment:
 
 #include <pshpack4.h>
 
-//#include "wtypes.h"
-
-//#include <windef.h>
-//#include <win32.h>
-//#include <basetyps.h>
-
 typedef LONG NTSTATUS;
 
 #include "hidusage.h"
