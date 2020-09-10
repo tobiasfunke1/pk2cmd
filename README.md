@@ -1,6 +1,28 @@
 pk2cmd
 ======
 
+My Changes
+----------
+Build:
+````
+git clone https://github.com/tobiasfunke1/pk2cmd
+cd pk2cmd
+mkdir build
+cd build
+cmake .. -GNinja  -DCMAKE_BUILD_TYPE=Release
+ninja
+````
+Requirements:
+````
+ninja
+cmake
+gcc / clang
+g++ / clang++
+ccache
+pre-commit
+git
+````
+
 Notice
 ------
 
