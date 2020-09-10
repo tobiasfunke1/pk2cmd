@@ -18,4 +18,3 @@ installed at the same time.
 
 You can download libusb-0.1 from http://libusb.sourceforge.net. See the README
 and INSTALL files for instructions on how to install libusb on your system.
-

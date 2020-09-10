@@ -1,16 +1,14 @@
-Building pk2cmd in Linux and Mac OS X
+Building pk2cmd in Linux
 pk2cmd version 1.10.00 - June 2008
 -------------------------------------
 
-A Makefile is provided for compiling on several versions of Linux and Mac OS X.
+A Makefile is provided for compiling on several versions of Linux.
 Select the system either by uncommenting one of the TARGET options in the
 Makefile or by specifying the target on the command line.
 
 make linux              Build for Linux kernel 2.6
 make linux-old          Build for Linux kernel 2.4
 make freebsd            Build for FreeBSD	(See FREEBSD NOTE below)
-make mac104             Build for OS X version 10.4
-make mac105             Build for OS X version 10.5
 
 After successfully compiling pk2cmd, use su or sudo to run 'make install' as
 root. The pk2cmd binary will be copied to /usr/local/bin with the 's'
@@ -28,8 +26,6 @@ Some similar procedure should exist for other command line shells; consult your
 system's documentation. You'll need to restart your window manager for these
 changes to take effect.
 
-On Mac OS X, tcsh cannot be used because the '?' character has special meaning.
-You will need to run pk2cmd using bash.
 
 If compiling for Linux kernel 2.4, you will get some compiler warnings stating
 that '#pragma once is obsolete'. These warnings can be safely ignored.
@@ -45,7 +41,7 @@ FREEBSD NOTE:
 Due to USB stack problems in FreeBSD, the PK2CMD implementation in this OS
 is still considered very "experimental."
 
-For help in getting pk2cmd to work under FreeBSD, try referring to the 
+For help in getting pk2cmd to work under FreeBSD, try referring to the
 following blog posts by Xiaofan Chen:
 http://mcuee.blogspot.com/2007/11/pk2cmd-ported-to-linux.html
 http://mcuee.blogspot.com/2007/11/setting-up-permissions-for-usb-ports-to.html
@@ -58,7 +54,7 @@ The following are known problems in FreeBSD, even when the program is otherwise
 
 The USB stack issues prevent pk2cmd from being able to successfully update the
 PICkit 2 operating system firmware.  Make sure the PICkit 2 unit firmware is
-up-to-date using another OS (such as Linux, Windows, or MacOS).
+up-to-date using another OS (such as Linux, Windows).
 
 Support for multiple programmers using the '-s' options does not work under
 FreeBSD either.  Do not use the '-s' option on this OS.  PK2CMD should work

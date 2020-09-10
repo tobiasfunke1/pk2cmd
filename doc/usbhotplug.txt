@@ -4,7 +4,7 @@ covering libusb 0.1.10
 ========================================
 
 Since libusb is accessing the raw device nodes exported by the kernel
-in order to identify connected USB busses, functions and such, it 
+in order to identify connected USB busses, functions and such, it
 needs to find these nodes. During the history of the Linux kernel,
 the placement and the way of accessing these nodes have changed.
 
@@ -20,13 +20,13 @@ devices under Linux is called "udev". This is a development of the
 older "hotplug" system (see below).
 
 When a device is connected, the kernel will call the program
-/sbin/udev in order to create a device node in the /dev/ file 
+/sbin/udev in order to create a device node in the /dev/ file
 hirerarchy. It will also remove devices from this hierarchy when
 they are unplugged.
 
 Traditionally, all devices plugged into a Linux system are expected
 to have a kernel device driver, or to load one on-the-fly when a
-new device is connected. Libusb cannot use these device drivers, 
+new device is connected. Libusb cannot use these device drivers,
 instead it attempts to access the raw device nodes from user mode,
 not as a kernel module.
 
@@ -41,8 +41,8 @@ SUBSYSTEM=="usb_device", PROGRAM="/bin/sh -c 'K=%k; K=$${K#usbdev}; \
   NAME="%c"
 
 This layout is used by for example the Debian distribution and Fedora
-Core. This rule creates a device tree identical to the earlier 
-/proc/bus/usb/ tree, but under /dev/bus/usb/ instead. If this device 
+Core. This rule creates a device tree identical to the earlier
+/proc/bus/usb/ tree, but under /dev/bus/usb/ instead. If this device
 tree exists, libusb will default to use it. It will look like this:
 
 /dev
@@ -58,11 +58,11 @@ tree exists, libusb will default to use it. It will look like this:
         ...
 
 However notice that the permissions on the nodes will be default
-permissions: often this means they are only accessible for writing 
-by the root user, whereas non-root users often can access it 
+permissions: often this means they are only accessible for writing
+by the root user, whereas non-root users often can access it
 read-only.
 
-The way of controlling access to a device node differs between 
+The way of controlling access to a device node differs between
 systems, but a typical way of complementing udev rules with
 apropriate permissions is to use PAM (pluggable Authentication
 Modules), with some sort of configuration under /etc/security/.
@@ -82,9 +82,9 @@ MODE="660", GROUP="foo"
 where "foo" is a group of users (e.g. desktop users) that need
 to access the device in read/write mode.
 
-If libusb cannot find a device hierarchy below /dev/bus/usb/ 
+If libusb cannot find a device hierarchy below /dev/bus/usb/
 (as is the case if you are not using udev, or not using it with
-the above rule), it will fall back on using /proc/bus/usb/ 
+the above rule), it will fall back on using /proc/bus/usb/
 instead.
 
 Additionally, you may want to trigger unique actions for your
@@ -99,7 +99,7 @@ actions for device 1234/4321, for example:
 
 MODE="660", GROUP="baz"   to set mode and group
 RUN="/usr/local/bin/baz"  to run a script on plug-in
-SYMLINK+="foo"            to create a symlink device node with 
+SYMLINK+="foo"            to create a symlink device node with
                           this name in /dev
 
 You can read more about udev in its own documentation.
@@ -113,7 +113,7 @@ will want to change the permissions on the new node, unless it
 defaults to something that is globally writeable and readable.
 Making anything that is plugged in on the USB bus writeable and
 readable by ALL users is typically a bad idea, because what you
-most typically want to do is to make it writeable and readable 
+most typically want to do is to make it writeable and readable
 for the console user, i.e. the person that happens to sit behind
 the screen and keyboard of this very computer.
 
@@ -129,14 +129,14 @@ Since Linux is used in a strict multi-user context, this has to
 be solved: give permissions to hotplugged devices only to the
 console user.
 
-Fedora Core 5 and later does this by using PAM. Whenever 
-something happens in udev, PAM is called to modify the 
+Fedora Core 5 and later does this by using PAM. Whenever
+something happens in udev, PAM is called to modify the
 permissions on anything that appeared in the file system in
 accordance to a set of security rules.
 
 The trick is to create a symbolic link for your new device,
-then let PAM match the name of this link and change the 
-permissions of it. For example, in /etc/udev/rules.d/foo.rules 
+then let PAM match the name of this link and change the
+permissions of it. For example, in /etc/udev/rules.d/foo.rules
 you write:
 
 SUBSYSTEM=="usb_device", ACTION=="add", SYSFS{idVendor}=="1234", \
@@ -160,7 +160,7 @@ Previous solution: use hotplug
 ==============================
 
 Before udev another system, generally considered less elegant,
-known simply as "hotplug" was used. In this case the program 
+known simply as "hotplug" was used. In this case the program
 /sbin/hotplug would be called whenever devices were connected
 or removed from the system, and the corresponding configuration
 lives in /etc/hotplug/.
@@ -182,14 +182,14 @@ drivers. The hierarchy will look like this:
         /002
         ...
 
-When USB devices are plugged in, their corresponding device 
+When USB devices are plugged in, their corresponding device
 node is created in /proc/bus/usb/ by the kernel, without any
 external program intervention (as is the case with udev).
 
 However, to correct the permissions on these device nodes, if
 your device requires anything else than read access, you need
 to supply a script in /etc/hotplug/usb/ that detects your
-device and change its permissions, for example this 
+device and change its permissions, for example this
 /etc/hotplug/usb/foo.usermap
 
 # Foo device with VID=1234 and PID=4321
@@ -211,5 +211,5 @@ to let users in the group "baz" access the device for reading
 and writing. There exist solutions similar to the PAM permission
 change for hotplug, but they are all kind of hackish.
 
-You can read more about hotplug and its usermaps in the 
+You can read more about hotplug and its usermaps in the
 hotplug documentation.
