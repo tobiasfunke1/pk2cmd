@@ -88,8 +88,7 @@
 #include <cstdio>
 #include "cmd_app.h"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     Ccmd_app pk2app;
     pk2app.PK2_CMD_Entry(argc, argv);
 

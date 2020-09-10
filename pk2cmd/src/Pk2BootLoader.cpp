@@ -67,7 +67,7 @@ bool Pk2BootLoader::ReadHexAndDownload(_TCHAR *fileName, CPICkitFunctions *picFu
 
                 if ((second16) && ((fileAddress & 0x00000010) == 0)) {// if just moved to new 32-byte boundary.
                     picFuncs->BL_WriteFlash(flashWriteData);
-                    for (unsigned char & x : flashWriteData) { // clear array for skipped bytes in hex file
+                    for (unsigned char &x : flashWriteData) { // clear array for skipped bytes in hex file
                         x = 0xFF;
                     }
                 }

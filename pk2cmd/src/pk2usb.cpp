@@ -28,9 +28,6 @@
 #include <cstring>
 
 #include "usb.h" // libusb header
- // for geteuid
-
-
 #include "pk2usb.h"
 
 #if HAVE_LIBUSB_OLD_BULK_MODE
@@ -202,7 +199,6 @@ pickit_dev *usbPickitOpen(int unitIndex, char *unitID) {
 
     if (usbdebug & USB_DEBUG_DRIVER)
         usb_set_debug(255);
-
 
     if (verbose) {
         printf("\nLocating USB Microchip PICkit2 (vendor 0x%04x/product 0x%04x)\n",

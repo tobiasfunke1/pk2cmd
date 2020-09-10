@@ -1828,7 +1828,8 @@ void CPICkitFunctions::timerStop() const {
 }
 
 void
-CPICkitFunctions::ArrayCopy(const unsigned char *source, int sourceStart, unsigned char *dest, int destStart, int length) {
+CPICkitFunctions::ArrayCopy(const unsigned char *source, int sourceStart, unsigned char *dest, int destStart,
+                            int length) {
     for (int i = 0; i < length; i++) {
         *(dest + destStart + i) = *(source + sourceStart + i);
     }
@@ -2145,6 +2146,7 @@ void freadbin(void *inbuf, int size, int count, FILE *stream) {
         }
     }
 }
+
 #define fread(a, b, c, d) freadbin(a,b,c,d)
 
 bool CPICkitFunctions::ReadDeviceFile(_TCHAR *path) {
@@ -2363,7 +2365,7 @@ void CPICkitFunctions::downloadPartScripts(int familyIndex) {
     writeUSB(commandArray, 1);
 
     // clear the script redirect table
-    for (auto & i : scriptRedirectTable) {
+    for (auto &i : scriptRedirectTable) {
         i.redirectToScriptLocation = 0;
         i.deviceFileScriptNumber = 0;
     }
@@ -2867,7 +2869,7 @@ bool CPICkitFunctions::SearchDevice(int familyIndex) {
 
     // NOTE: parts that only return 2 bytes for DevID will have junk in upper word.  This is OK - it gets masked off
     auto deviceID = (unsigned int) (Usb_read_array[4] * 0x1000000 + Usb_read_array[3] * 0x10000 +
-                                            Usb_read_array[2] * 256 + Usb_read_array[1]);
+                                    Usb_read_array[2] * 256 + Usb_read_array[1]);
     for (int shift = 0; shift < DevFile.Families[familyIndex].ProgMemShift; shift++) {
         deviceID >>= 1;         // midrange/baseline part results must be shifted by 1
     }
